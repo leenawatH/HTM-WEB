@@ -1,0 +1,39 @@
+{
+  "nav": {
+    "home": "Home",
+    "categories": "Categories",
+    "allProducts": "All Products",
+    "brands": "Brands",
+    "about": "About Us",
+    "colorTest": "Color Test",
+    "search": "Search",
+    "searchPlaceholder": "Search paint, tools, brands...",
+    "account": "My Account",
+    "signIn": "Sign In",
+    "cart": "Cart",
+    "wishlist": "Wishlist",
+    "menu": "Menu"
+  },
+  "footer": {
+    "aboutTitle": "About Hor Tong Mong",
+    "aboutText": "Your one-stop shop for house paint and hardware tools — featuring a live camera color test for real walls.",
+    "shop": "Shop",
+    "customerService": "Customer Service",
+    "categories": "Categories",
+    "contactUs": "Contact Us",
+    "payments": "Payment Methods",
+    "followUs": "Follow Us",
+    "hours": "Opening Hours",
+    "rights": "All rights reserved",
+    "helpCenter": "Help Center",
+    "shipping": "Shipping",
+    "returns": "Returns",
+    "trackOrder": "Track Order"
+  },
+  "common": {
+    "shopNow": "Shop Now",
+    "addToCart": "Add to Cart",
+    "viewAll": "View All",
+    "language": "Language"
+  }
+}
