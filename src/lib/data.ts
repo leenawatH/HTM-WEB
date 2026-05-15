@@ -372,3 +372,88 @@ export async function getAllProductSlugs() {
   });
   return rows.map((r) => r.slug);
 }
+
+// ============================================================
+// Orders
+// ============================================================
+
+export type OrderView = {
+  orderNumber: string;
+  email: string;
+  status: string;
+  paymentMethod: string;
+  paymentStatus: string;
+  subtotal: number;
+  discountTotal: number;
+  shippingFee: number;
+  codFee: number;
+  vatAmount: number;
+  grandTotal: number;
+  voucherCode: string | null;
+  recipientName: string;
+  recipientPhone: string;
+  addressLine1: string;
+  addressLine2: string | null;
+  subdistrict: string | null;
+  district: string;
+  province: string;
+  postalCode: string;
+  note: string | null;
+  createdAt: string;
+  items: {
+    productName: string;
+    brandName: string;
+    variantLabel: string;
+    colorName: string | null;
+    colorHex: string | null;
+    imageUrl: string | null;
+    unitPrice: number;
+    quantity: number;
+    lineTotal: number;
+  }[];
+};
+
+export async function getOrderByNumber(
+  orderNumber: string,
+): Promise<OrderView | null> {
+  const o = await prisma.order.findUnique({
+    where: { orderNumber },
+    include: { items: true },
+  });
+  if (!o) return null;
+  return {
+    orderNumber: o.orderNumber,
+    email: o.email,
+    status: o.status,
+    paymentMethod: o.paymentMethod,
+    paymentStatus: o.paymentStatus,
+    subtotal: o.subtotal.toNumber(),
+    discountTotal: o.discountTotal.toNumber(),
+    shippingFee: o.shippingFee.toNumber(),
+    codFee: o.codFee.toNumber(),
+    vatAmount: o.vatAmount.toNumber(),
+    grandTotal: o.grandTotal.toNumber(),
+    voucherCode: o.voucherCode,
+    recipientName: o.recipientName,
+    recipientPhone: o.recipientPhone,
+    addressLine1: o.addressLine1,
+    addressLine2: o.addressLine2,
+    subdistrict: o.subdistrict,
+    district: o.district,
+    province: o.province,
+    postalCode: o.postalCode,
+    note: o.note,
+    createdAt: o.createdAt.toISOString(),
+    items: o.items.map((it) => ({
+      productName: it.productName,
+      brandName: it.brandName,
+      variantLabel: it.variantLabel,
+      colorName: it.colorName,
+      colorHex: it.colorHex,
+      imageUrl: it.imageUrl,
+      unitPrice: it.unitPrice.toNumber(),
+      quantity: it.quantity,
+      lineTotal: it.lineTotal.toNumber(),
+    })),
+  };
+}

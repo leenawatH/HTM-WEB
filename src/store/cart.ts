@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import type { AppliedVoucher } from "@/lib/pricing";
 
 // Cart lives in localStorage for guests; merged into the DB Cart on login (Phase 5).
 export type CartItem = {
@@ -25,9 +26,11 @@ export type CartItem = {
 
 type CartState = {
   items: CartItem[];
+  appliedVoucher: AppliedVoucher | null;
   addItem: (item: Omit<CartItem, "key" | "quantity">, quantity?: number) => void;
   removeItem: (key: string) => void;
   setQuantity: (key: string, quantity: number) => void;
+  setVoucher: (voucher: AppliedVoucher | null) => void;
   clear: () => void;
   totalItems: () => number;
   subtotal: () => number;
@@ -41,6 +44,7 @@ export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
+      appliedVoucher: null,
 
       addItem: (item, quantity = 1) => {
         const key = lineKey(item.variantId, item.colorId);
@@ -79,7 +83,9 @@ export const useCartStore = create<CartState>()(
           }),
         })),
 
-      clear: () => set({ items: [] }),
+      setVoucher: (voucher) => set({ appliedVoucher: voucher }),
+
+      clear: () => set({ items: [], appliedVoucher: null }),
 
       totalItems: () => get().items.reduce((n, i) => n + i.quantity, 0),
 
