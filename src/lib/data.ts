@@ -117,3 +117,258 @@ export async function getBrands() {
     logoUrl: b.logoUrl,
   }));
 }
+
+// ============================================================
+// Category listing
+// ============================================================
+
+export const SORT_OPTIONS = [
+  "popular",
+  "price-asc",
+  "price-desc",
+  "newest",
+  "discount",
+] as const;
+export type SortOption = (typeof SORT_OPTIONS)[number];
+
+const SORT_MAP: Record<SortOption, object> = {
+  popular: { salesCount: "desc" },
+  "price-asc": { basePrice: "asc" },
+  "price-desc": { basePrice: "desc" },
+  newest: { createdAt: "desc" },
+  discount: { discountPercent: "desc" },
+};
+
+export const PAGE_SIZE = 12;
+
+export type CategoryListingResult = {
+  products: ProductCardData[];
+  total: number;
+  pageCount: number;
+  page: number;
+  priceBounds: { min: number; max: number };
+};
+
+export async function getCategoryBySlug(slug: string) {
+  if (slug === "all") {
+    return { slug: "all", nameTh: "สินค้าทั้งหมด", nameEn: "All Products", descriptionTh: null, imageUrl: null };
+  }
+  const c = await prisma.category.findUnique({ where: { slug } });
+  if (!c) return null;
+  return {
+    slug: c.slug,
+    nameTh: c.nameTh,
+    nameEn: c.nameEn,
+    descriptionTh: c.descriptionTh,
+    imageUrl: c.imageUrl,
+  };
+}
+
+export async function getCategoryListing(opts: {
+  categorySlug: string;
+  brandSlugs?: string[];
+  minPrice?: number;
+  maxPrice?: number;
+  sort?: SortOption;
+  page?: number;
+}): Promise<CategoryListingResult> {
+  const { categorySlug } = opts;
+  const brandSlugs = opts.brandSlugs ?? [];
+  const sort: SortOption = opts.sort ?? "popular";
+  const page = Math.max(1, opts.page ?? 1);
+
+  const priceFilter =
+    opts.minPrice != null || opts.maxPrice != null
+      ? {
+          ...(opts.minPrice != null ? { gte: opts.minPrice } : {}),
+          ...(opts.maxPrice != null ? { lte: opts.maxPrice } : {}),
+        }
+      : undefined;
+
+  const where = {
+    isActive: true,
+    ...(categorySlug !== "all"
+      ? { category: { slug: categorySlug } }
+      : {}),
+    ...(brandSlugs.length ? { brand: { slug: { in: brandSlugs } } } : {}),
+    ...(priceFilter ? { basePrice: priceFilter } : {}),
+  };
+
+  // price bounds for the slider — scoped to the category, ignores filters
+  const boundsWhere = {
+    isActive: true,
+    ...(categorySlug !== "all" ? { category: { slug: categorySlug } } : {}),
+  };
+
+  const [total, rows, bounds] = await Promise.all([
+    prisma.product.count({ where }),
+    prisma.product.findMany({
+      where,
+      orderBy: SORT_MAP[sort],
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+      include: cardInclude,
+    }),
+    prisma.product.aggregate({
+      where: boundsWhere,
+      _min: { basePrice: true },
+      _max: { basePrice: true },
+    }),
+  ]);
+
+  return {
+    products: rows.map(toCardData),
+    total,
+    pageCount: Math.max(1, Math.ceil(total / PAGE_SIZE)),
+    page,
+    priceBounds: {
+      min: Math.floor(bounds._min.basePrice?.toNumber() ?? 0),
+      max: Math.ceil(bounds._max.basePrice?.toNumber() ?? 5000),
+    },
+  };
+}
+
+// ============================================================
+// Product detail
+// ============================================================
+
+export type ProductColor = {
+  id: string;
+  code: string;
+  nameTh: string;
+  nameEn: string;
+  hex: string;
+  family: string;
+};
+
+export type ProductDetail = {
+  id: string;
+  slug: string;
+  nameTh: string;
+  nameEn: string;
+  descriptionTh: string | null;
+  descriptionEn: string | null;
+  isPaint: boolean;
+  brandName: string;
+  brandSlug: string;
+  categorySlug: string;
+  categoryNameTh: string;
+  categoryNameEn: string;
+  basePrice: number;
+  discountPercent: number;
+  ratingAvg: number;
+  ratingCount: number;
+  salesCount: number;
+  images: { url: string; alt: string | null }[];
+  variants: { id: string; label: string; price: number; stock: number }[];
+  specs: { labelTh: string; labelEn: string; value: string }[];
+  reviews: {
+    id: string;
+    rating: number;
+    title: string | null;
+    body: string;
+    createdAt: string;
+    authorName: string;
+  }[];
+  colors: ProductColor[];
+};
+
+export async function getProductBySlug(
+  slug: string,
+): Promise<ProductDetail | null> {
+  const p = await prisma.product.findUnique({
+    where: { slug },
+    include: {
+      brand: { select: { name: true, slug: true } },
+      category: { select: { slug: true, nameTh: true, nameEn: true } },
+      images: { orderBy: { sortOrder: "asc" } },
+      variants: { orderBy: { sortOrder: "asc" } },
+      specs: { orderBy: { sortOrder: "asc" } },
+      reviews: {
+        orderBy: { createdAt: "desc" },
+        include: { user: { select: { name: true } } },
+      },
+      colorCollections: {
+        include: { colors: { orderBy: { sortOrder: "asc" } } },
+      },
+    },
+  });
+  if (!p || !p.isActive) return null;
+
+  const basePrice = p.basePrice.toNumber();
+  return {
+    id: p.id,
+    slug: p.slug,
+    nameTh: p.nameTh,
+    nameEn: p.nameEn,
+    descriptionTh: p.descriptionTh,
+    descriptionEn: p.descriptionEn,
+    isPaint: p.isPaint,
+    brandName: p.brand.name,
+    brandSlug: p.brand.slug,
+    categorySlug: p.category.slug,
+    categoryNameTh: p.category.nameTh,
+    categoryNameEn: p.category.nameEn,
+    basePrice,
+    discountPercent: p.discountPercent,
+    ratingAvg: p.ratingAvg,
+    ratingCount: p.ratingCount,
+    salesCount: p.salesCount,
+    images: p.images.map((img) => ({ url: img.url, alt: img.alt })),
+    variants: p.variants.map((v) => ({
+      id: v.id,
+      label: v.label,
+      price: v.priceOverride?.toNumber() ?? basePrice,
+      stock: v.stock,
+    })),
+    specs: p.specs.map((s) => ({
+      labelTh: s.labelTh,
+      labelEn: s.labelEn,
+      value: s.value,
+    })),
+    reviews: p.reviews.map((r) => ({
+      id: r.id,
+      rating: r.rating,
+      title: r.title,
+      body: r.body,
+      createdAt: r.createdAt.toISOString(),
+      authorName: r.user.name ?? "ลูกค้า",
+    })),
+    colors: p.colorCollections.flatMap((cc) =>
+      cc.colors.map((c) => ({
+        id: c.id,
+        code: c.code,
+        nameTh: c.nameTh,
+        nameEn: c.nameEn,
+        hex: c.hex,
+        family: c.family,
+      })),
+    ),
+  };
+}
+
+export async function getRelatedProducts(
+  categorySlug: string,
+  excludeId: string,
+  limit = 4,
+): Promise<ProductCardData[]> {
+  const rows = await prisma.product.findMany({
+    where: {
+      isActive: true,
+      category: { slug: categorySlug },
+      id: { not: excludeId },
+    },
+    orderBy: { salesCount: "desc" },
+    take: limit,
+    include: cardInclude,
+  });
+  return rows.map(toCardData);
+}
+
+export async function getAllProductSlugs() {
+  const rows = await prisma.product.findMany({
+    where: { isActive: true },
+    select: { slug: true },
+  });
+  return rows.map((r) => r.slug);
+}
