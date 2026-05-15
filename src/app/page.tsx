@@ -1,96 +1,85 @@
-import Link from "next/link";
-import { useLocale, useTranslations } from "next-intl";
+import { Camera, Truck, BadgeCheck, Wallet } from "lucide-react";
 import {
-  PaintBucket,
-  Paintbrush,
-  SprayCan,
-  Container,
-  PaintRoller,
-  Wrench,
-  HardHat,
-  ArrowRight,
-  type LucideIcon,
-} from "lucide-react";
-import { CATEGORIES, STORE, type Locale } from "@/lib/constants";
-import { Button } from "@/components/ui/button";
+  getFeaturedProducts,
+  getCategoriesWithCount,
+  getBrands,
+} from "@/lib/data";
+import { HeroCarousel } from "@/components/home/hero-carousel";
+import { SectionHeading } from "@/components/home/section-heading";
+import { CategoryGrid } from "@/components/home/category-grid";
+import { BrandStrip } from "@/components/home/brand-strip";
+import { ProductGrid } from "@/components/product/product-grid";
 
-const CATEGORY_ICONS: Record<string, LucideIcon> = {
-  PaintBucket,
-  Paintbrush,
-  SprayCan,
-  Container,
-  PaintRoller,
-  Wrench,
-  HardHat,
-};
+const FEATURES = [
+  { icon: Camera, title: "ทดลองสีก่อนซื้อ", text: "ทาสีบนผนังจริงผ่านกล้อง" },
+  { icon: Truck, title: "ส่งฟรี ฿1,000 ขึ้นไป", text: "จัดส่งทั่วประเทศ" },
+  { icon: BadgeCheck, title: "7 แบรนด์ชั้นนำ", text: "TOA, Nippon, Dulux และอื่นๆ" },
+  { icon: Wallet, title: "ชำระปลายทางได้", text: "บัตรเครดิต, PromptPay, COD" },
+];
 
-export default function Home() {
-  const t = useTranslations("common");
-  const tNav = useTranslations("nav");
-  const locale = useLocale() as Locale;
+export default async function Home() {
+  const [featured, categories, brands] = await Promise.all([
+    getFeaturedProducts(8),
+    getCategoriesWithCount(),
+    getBrands(),
+  ]);
 
   return (
     <div>
-      {/* hero */}
-      <section className="bg-primary text-primary-foreground">
-        <div className="mx-auto flex max-w-[1280px] flex-col items-start gap-6 px-4 py-20 sm:py-28">
-          <span className="rounded-full bg-brand/15 px-3 py-1 text-sm font-medium text-brand">
-            🎨 ทดลองสีบนผนังจริงผ่านกล้อง
-          </span>
-          <h1 className="max-w-2xl font-heading text-4xl font-semibold leading-tight sm:text-5xl">
-            {STORE.tagline}
-          </h1>
-          <p className="max-w-xl text-primary-foreground/70">
-            {STORE.taglineEn} — สี เครื่องมือช่าง อุปกรณ์ครบ จากแบรนด์ชั้นนำ
-            พร้อมส่งถึงบ้าน
-          </p>
-          <div className="flex flex-wrap gap-3">
-            <Button
-              render={<Link href="/category/paint" />}
-              size="lg"
-              className="bg-brand hover:bg-brand-hover"
-            >
-              {t("shopNow")}
-              <ArrowRight className="size-4" />
-            </Button>
-            <Button
-              render={<Link href="/about" />}
-              size="lg"
-              variant="outline"
-              className="border-primary-foreground/30 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
-            >
-              {tNav("about")}
-            </Button>
+      <HeroCarousel />
+
+      {/* trust strip */}
+      <section className="border-b border-border bg-card">
+        <div className="mx-auto grid max-w-[1280px] grid-cols-2 gap-4 px-4 py-6 lg:grid-cols-4">
+          {FEATURES.map((f) => (
+            <div key={f.title} className="flex items-center gap-3">
+              <span className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary text-brand">
+                <f.icon className="size-5" />
+              </span>
+              <div>
+                <p className="text-sm font-semibold text-foreground">
+                  {f.title}
+                </p>
+                <p className="text-xs text-muted-foreground">{f.text}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* recommended */}
+      <section className="mx-auto max-w-[1280px] px-4 py-14">
+        <SectionHeading
+          title="สินค้าแนะนำ"
+          subtitle="สินค้ายอดนิยมและกำลังลดราคา"
+          viewAllHref="/category/all"
+        />
+        <div className="mt-8">
+          <ProductGrid products={featured} />
+        </div>
+      </section>
+
+      {/* categories */}
+      <section className="bg-card py-14">
+        <div className="mx-auto max-w-[1280px] px-4">
+          <SectionHeading
+            title="เลือกซื้อตามหมวดหมู่"
+            subtitle="Shop by category"
+          />
+          <div className="mt-8">
+            <CategoryGrid categories={categories} />
           </div>
         </div>
       </section>
 
-      {/* shop by category */}
-      <section className="mx-auto max-w-[1280px] px-4 py-16">
-        <h2 className="font-heading text-2xl font-semibold text-foreground">
-          เลือกซื้อตามหมวดหมู่
-        </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Shop by category
-        </p>
-        <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-7">
-          {CATEGORIES.map((c) => {
-            const Icon = CATEGORY_ICONS[c.icon] ?? PaintBucket;
-            return (
-              <Link
-                key={c.slug}
-                href={`/category/${c.slug}`}
-                className="group flex flex-col items-center gap-3 rounded-lg border border-border bg-card p-5 text-center transition-colors hover:border-brand"
-              >
-                <span className="grid size-14 place-items-center rounded-full bg-secondary text-primary transition-colors group-hover:bg-brand group-hover:text-brand-foreground">
-                  <Icon className="size-7" />
-                </span>
-                <span className="text-sm font-medium text-foreground">
-                  {locale === "en" ? c.nameEn : c.nameTh}
-                </span>
-              </Link>
-            );
-          })}
+      {/* partner brands */}
+      <section id="brands" className="mx-auto max-w-[1280px] scroll-mt-28 px-4 py-14">
+        <SectionHeading
+          title="แบรนด์พันธมิตร"
+          subtitle="คลิกที่แบรนด์เพื่อดูสินค้าทั้งหมดของแบรนด์นั้น"
+        />
+        <div className="mt-8">
+          <BrandStrip brands={brands} />
         </div>
       </section>
     </div>
