@@ -2,7 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronRight } from "lucide-react";
-import { getProductBySlug, getRelatedProducts } from "@/lib/data";
+import { auth } from "@/auth";
+import {
+  getProductBySlug,
+  getRelatedProducts,
+  isInWishlist,
+} from "@/lib/data";
 import { ProductGallery } from "@/components/product/product-gallery";
 import { ProductPurchase } from "@/components/product/product-purchase";
 import { ProductTabs } from "@/components/product/product-tabs";
@@ -33,6 +38,10 @@ export default async function ProductPage({
   if (!product) notFound();
 
   const related = await getRelatedProducts(product.categorySlug, product.id);
+  const session = await auth();
+  const inWishlist = session?.user
+    ? await isInWishlist(session.user.id, product.id)
+    : false;
 
   return (
     <div className="mx-auto max-w-[1280px] px-4 py-6">
@@ -55,7 +64,7 @@ export default async function ProductPage({
       {/* main */}
       <div className="mt-5 grid gap-8 lg:grid-cols-2">
         <ProductGallery images={product.images} name={product.nameTh} />
-        <ProductPurchase product={product} />
+        <ProductPurchase product={product} initialInWishlist={inWishlist} />
       </div>
 
       {/* tabs */}

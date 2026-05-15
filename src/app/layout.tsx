@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Kanit, IBM_Plex_Sans_Thai } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
+import { SessionProvider } from "next-auth/react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { Toaster } from "@/components/ui/sonner";
@@ -45,12 +46,14 @@ export default async function RootLayout({
       className={`${ibmPlexThai.variable} ${kanit.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        <NextIntlClientProvider>
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
-          <Toaster richColors position="top-center" />
-        </NextIntlClientProvider>
+        <SessionProvider>
+          <NextIntlClientProvider>
+            <Navbar />
+            <main className="flex-1">{children}</main>
+            <Footer />
+            <Toaster richColors position="top-center" />
+          </NextIntlClientProvider>
+        </SessionProvider>
       </body>
     </html>
   );

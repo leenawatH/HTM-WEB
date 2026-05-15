@@ -379,6 +379,7 @@ export async function getAllProductSlugs() {
 
 export type OrderView = {
   orderNumber: string;
+  userId: string | null;
   email: string;
   status: string;
   paymentMethod: string;
@@ -423,6 +424,7 @@ export async function getOrderByNumber(
   if (!o) return null;
   return {
     orderNumber: o.orderNumber,
+    userId: o.userId,
     email: o.email,
     status: o.status,
     paymentMethod: o.paymentMethod,
@@ -456,4 +458,111 @@ export async function getOrderByNumber(
       lineTotal: it.lineTotal.toNumber(),
     })),
   };
+}
+
+// ============================================================
+// Account — all functions are scoped to a userId
+// ============================================================
+
+export async function getUserProfile(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: { _count: { select: { orders: true } } },
+  });
+  if (!user) return null;
+  return {
+    name: user.name,
+    email: user.email,
+    phone: user.phone,
+    image: user.image,
+    loyaltyTier: user.loyaltyTier,
+    birthDate: user.birthDate ? user.birthDate.toISOString() : null,
+    createdAt: user.createdAt.toISOString(),
+    orderCount: user._count.orders,
+  };
+}
+
+export async function getUserOrders(userId: string) {
+  const orders = await prisma.order.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+    include: { items: true },
+  });
+  return orders.map((o) => ({
+    orderNumber: o.orderNumber,
+    status: o.status,
+    paymentStatus: o.paymentStatus,
+    paymentMethod: o.paymentMethod,
+    grandTotal: o.grandTotal.toNumber(),
+    createdAt: o.createdAt.toISOString(),
+    itemCount: o.items.reduce((n, it) => n + it.quantity, 0),
+    firstItemName: o.items[0]?.productName ?? "",
+    firstImageUrl: o.items[0]?.imageUrl ?? null,
+    reorderItems: o.items
+      .filter((it) => it.variantId)
+      .map((it) => ({
+        variantId: it.variantId as string,
+        colorId: it.colorId,
+        quantity: it.quantity,
+      })),
+  }));
+}
+
+export async function getUserAddresses(userId: string) {
+  const rows = await prisma.address.findMany({
+    where: { userId },
+    orderBy: [{ isDefault: "desc" }, { createdAt: "desc" }],
+  });
+  return rows.map((a) => ({
+    id: a.id,
+    label: a.label,
+    recipient: a.recipient,
+    phone: a.phone,
+    line1: a.line1,
+    line2: a.line2,
+    subdistrict: a.subdistrict,
+    district: a.district,
+    province: a.province,
+    postalCode: a.postalCode,
+    isDefault: a.isDefault,
+  }));
+}
+
+export async function getUserVouchers(userId: string) {
+  const rows = await prisma.userVoucher.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+    include: { voucher: true },
+  });
+  return rows.map((uv) => ({
+    id: uv.id,
+    source: uv.source,
+    isUsed: uv.isUsed,
+    code: uv.voucher.code,
+    type: uv.voucher.type,
+    value: uv.voucher.value.toNumber(),
+    minSpend: uv.voucher.minSpend.toNumber(),
+    descriptionTh: uv.voucher.descriptionTh,
+    expiresAt: (uv.expiresAt ?? uv.voucher.expiresAt).toISOString(),
+  }));
+}
+
+export async function getUserWishlist(
+  userId: string,
+): Promise<ProductCardData[]> {
+  const rows = await prisma.wishlistItem.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+    include: { product: { include: cardInclude } },
+  });
+  return rows
+    .filter((w) => w.product.isActive)
+    .map((w) => toCardData(w.product));
+}
+
+export async function isInWishlist(userId: string, productId: string) {
+  const row = await prisma.wishlistItem.findUnique({
+    where: { userId_productId: { userId, productId } },
+  });
+  return Boolean(row);
 }

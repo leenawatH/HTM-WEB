@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { useLocale } from "next-intl";
-import { Star, Minus, Plus, ShoppingCart, Zap, Palette } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { Star, Minus, Plus, ShoppingCart, Zap, Palette, Heart } from "lucide-react";
 import { toast } from "sonner";
 import type { ProductDetail } from "@/lib/data";
 import type { Locale } from "@/lib/constants";
 import { formatPrice, discountedPrice } from "@/lib/format";
+import { toggleWishlist } from "@/actions/account";
 import { useCartStore } from "@/store/cart";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -23,14 +25,40 @@ const FAMILY_LABELS: Record<string, string> = {
 };
 const FAMILY_ORDER = ["neutral", "warm", "earth", "green", "blue", "purple"];
 
-export function ProductPurchase({ product }: { product: ProductDetail }) {
+export function ProductPurchase({
+  product,
+  initialInWishlist,
+}: {
+  product: ProductDetail;
+  initialInWishlist: boolean;
+}) {
   const locale = useLocale() as Locale;
   const router = useRouter();
+  const { data: session } = useSession();
   const addItem = useCartStore((s) => s.addItem);
 
   const [variantId, setVariantId] = useState(product.variants[0]?.id ?? "");
   const [colorId, setColorId] = useState(product.colors[0]?.id ?? "");
   const [qty, setQty] = useState(1);
+  const [inWishlist, setInWishlist] = useState(initialInWishlist);
+  const [wishlistPending, startWishlist] = useTransition();
+
+  function onToggleWishlist() {
+    if (!session?.user) {
+      toast.error("กรุณาเข้าสู่ระบบเพื่อบันทึกรายการโปรด");
+      router.push("/signin?callbackUrl=/product/" + product.slug);
+      return;
+    }
+    startWishlist(async () => {
+      const res = await toggleWishlist(product.id);
+      setInWishlist(res.inWishlist);
+      toast.success(
+        res.inWishlist
+          ? "บันทึกลงรายการโปรดแล้ว"
+          : "นำออกจากรายการโปรดแล้ว",
+      );
+    });
+  }
 
   const name = locale === "en" ? product.nameEn : product.nameTh;
   const variant =
@@ -265,6 +293,18 @@ export function ProductPurchase({ product }: { product: ProductDetail }) {
         >
           <Zap className="size-5" />
           ซื้อเลย
+        </Button>
+        <Button
+          size="lg"
+          variant="outline"
+          onClick={onToggleWishlist}
+          disabled={wishlistPending}
+          aria-label="รายการโปรด"
+          className="sm:w-12"
+        >
+          <Heart
+            className={cn("size-5", inWishlist && "fill-sale text-sale")}
+          />
         </Button>
       </div>
 

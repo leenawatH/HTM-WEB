@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
+import { AccountMenu } from "@/components/layout/account-menu";
 import {
   Sheet,
   SheetContent,
@@ -88,12 +89,7 @@ export function Navbar() {
           <span className="sm:hidden">{STORE.tagline}</span>
           <div className="flex items-center gap-4">
             <LanguageSwitcher />
-            <Link
-              href="/signin"
-              className="hover:text-brand transition-colors"
-            >
-              {t("signIn")}
-            </Link>
+            <AccountMenu />
           </div>
         </div>
       </div>

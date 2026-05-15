@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
 import { discountedPrice } from "@/lib/format";
 import { computeTotals, type AppliedVoucher, type PaymentMethod } from "@/lib/pricing";
 
@@ -166,10 +167,15 @@ export async function placeOrder(
 
   const orderNumber = generateOrderNumber();
 
+  // attach the order to the signed-in user, if any (guests stay null)
+  const session = await auth();
+  const userId = session?.user?.id ?? null;
+
   await prisma.$transaction(async (tx) => {
     await tx.order.create({
       data: {
         orderNumber,
+        userId,
         email: input.email.trim(),
         status: "PENDING",
         paymentMethod: input.paymentMethod,
@@ -214,4 +220,98 @@ export async function placeOrder(
   });
 
   return { ok: true, orderNumber };
+}
+
+export type ReorderLine = {
+  item: {
+    productId: string;
+    variantId: string;
+    slug: string;
+    name: string;
+    brandName: string;
+    variantLabel: string;
+    imageUrl: string;
+    unitPrice: number;
+    maxStock: number;
+    colorId?: string;
+    colorCode?: string;
+    colorName?: string;
+    colorHex?: string;
+  };
+  quantity: number;
+};
+
+// Rebuilds cart-ready lines from a past order, using current catalog prices.
+export async function getReorderItems(
+  orderNumber: string,
+): Promise<{ ok: true; lines: ReorderLine[] } | { ok: false; error: string }> {
+  const session = await auth();
+  if (!session?.user?.id) return { ok: false, error: "กรุณาเข้าสู่ระบบ" };
+
+  const order = await prisma.order.findUnique({
+    where: { orderNumber },
+    include: { items: true },
+  });
+  if (!order || order.userId !== session.user.id) {
+    return { ok: false, error: "ไม่พบคำสั่งซื้อ" };
+  }
+
+  const variantIds = order.items
+    .map((it) => it.variantId)
+    .filter((id): id is string => Boolean(id));
+  const variants = await prisma.productVariant.findMany({
+    where: { id: { in: variantIds } },
+    include: {
+      product: {
+        include: {
+          brand: { select: { name: true } },
+          images: { orderBy: { sortOrder: "asc" }, take: 1 },
+        },
+      },
+    },
+  });
+  const colorIds = order.items
+    .map((it) => it.colorId)
+    .filter((id): id is string => Boolean(id));
+  const colors = colorIds.length
+    ? await prisma.brandColor.findMany({ where: { id: { in: colorIds } } })
+    : [];
+
+  const lines: ReorderLine[] = [];
+  for (const it of order.items) {
+    const v = variants.find((x) => x.id === it.variantId);
+    if (!v || v.stock <= 0) continue;
+    const rawPrice =
+      v.priceOverride?.toNumber() ?? v.product.basePrice.toNumber();
+    const color = it.colorId
+      ? colors.find((c) => c.id === it.colorId)
+      : undefined;
+    lines.push({
+      quantity: Math.min(it.quantity, v.stock),
+      item: {
+        productId: v.productId,
+        variantId: v.id,
+        slug: v.product.slug,
+        name: v.product.nameTh,
+        brandName: v.product.brand.name,
+        variantLabel: v.label,
+        imageUrl: v.product.images[0]?.url ?? "/products/placeholder.svg",
+        unitPrice: discountedPrice(rawPrice, v.product.discountPercent),
+        maxStock: v.stock,
+        ...(color
+          ? {
+              colorId: color.id,
+              colorCode: color.code,
+              colorName: color.nameTh,
+              colorHex: color.hex,
+            }
+          : {}),
+      },
+    });
+  }
+
+  if (lines.length === 0) {
+    return { ok: false, error: "สินค้าในคำสั่งซื้อนี้ไม่พร้อมจำหน่ายแล้ว" };
+  }
+  return { ok: true, lines };
 }
