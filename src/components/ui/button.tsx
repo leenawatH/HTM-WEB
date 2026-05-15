@@ -49,6 +49,9 @@ function Button({
   return (
     <ButtonPrimitive
       data-slot="button"
+      // when rendered as another element (e.g. a Next.js Link/anchor),
+      // drop native-button semantics to satisfy Base UI + a11y
+      nativeButton={props.render ? false : undefined}
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     />
