@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#9c3e32"/>
+      <stop offset="1" stop-color="#660800"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="600" fill="url(#bg)"/>
+  <circle cx="300" cy="270" r="190" fill="#ffffff" opacity="0.1"/>
+  <g transform="translate(210 175)">
+    <rect x="0" y="40" width="180" height="200" rx="10" fill="#ffffff" opacity="0.92"/>
+    <rect x="0" y="40" width="180" height="44" rx="10" fill="#F97316"/>
+    <rect x="44" y="14" width="92" height="34" rx="8" fill="#ffffff" opacity="0.92"/>
+    <circle cx="90" cy="160" r="40" fill="#9c3e32"/>
+  </g>
+  <text x="300" y="470" font-family="Kanit, Segoe UI, sans-serif" font-size="46" font-weight="700" fill="#ffffff" text-anchor="middle">JBP</text>
+  <text x="300" y="514" font-family="Segoe UI, sans-serif" font-size="26" fill="#ffffff" opacity="0.85" text-anchor="middle">ลูกกลิ้ง</text>
+</svg>

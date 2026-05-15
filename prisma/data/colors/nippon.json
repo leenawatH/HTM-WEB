@@ -1,0 +1,331 @@
+{
+  "brandSlug": "nippon",
+  "collection": {
+    "slug": "nippon-colors",
+    "nameEn": "Nippon Colour Creations",
+    "nameTh": "นิปปอน คัลเลอร์ ครีเอชันส์",
+    "description": "ชุดสีตัวอย่างของแบรนด์ NIPPON (ข้อมูล hybrid — พร้อมแทนที่ด้วยชาร์ทสีทางการ)"
+  },
+  "colors": [
+    {
+      "code": "NP N 1500",
+      "nameEn": "Pure White",
+      "nameTh": "ขาวบริสุทธิ์",
+      "hex": "#FAF5F2",
+      "family": "neutral",
+      "sortOrder": 0
+    },
+    {
+      "code": "NP N 1509",
+      "nameEn": "Cotton White",
+      "nameTh": "ขาวนวล",
+      "hex": "#F2ECE4",
+      "family": "neutral",
+      "sortOrder": 1
+    },
+    {
+      "code": "NP N 1518",
+      "nameEn": "Warm Ivory",
+      "nameTh": "สีงาช้าง",
+      "hex": "#ECE1D1",
+      "family": "neutral",
+      "sortOrder": 2
+    },
+    {
+      "code": "NP N 1527",
+      "nameEn": "Soft Almond",
+      "nameTh": "อัลมอนด์",
+      "hex": "#E1D3BF",
+      "family": "neutral",
+      "sortOrder": 3
+    },
+    {
+      "code": "NP N 1536",
+      "nameEn": "Pale Linen",
+      "nameTh": "ลินินอ่อน",
+      "hex": "#DBCEC1",
+      "family": "neutral",
+      "sortOrder": 4
+    },
+    {
+      "code": "NP N 1545",
+      "nameEn": "Misty Grey",
+      "nameTh": "เทาหมอก",
+      "hex": "#CAC5C3",
+      "family": "neutral",
+      "sortOrder": 5
+    },
+    {
+      "code": "NP N 1554",
+      "nameEn": "Pebble Grey",
+      "nameTh": "เทากรวด",
+      "hex": "#AEA9A5",
+      "family": "neutral",
+      "sortOrder": 6
+    },
+    {
+      "code": "NP N 1563",
+      "nameEn": "Charcoal Smoke",
+      "nameTh": "เทาถ่าน",
+      "hex": "#716D6A",
+      "family": "neutral",
+      "sortOrder": 7
+    },
+    {
+      "code": "NP W 1572",
+      "nameEn": "Sunlight Yellow",
+      "nameTh": "เหลืองแสงแดด",
+      "hex": "#F7CF6B",
+      "family": "warm",
+      "sortOrder": 8
+    },
+    {
+      "code": "NP W 1581",
+      "nameEn": "Golden Sand",
+      "nameTh": "ทรายทอง",
+      "hex": "#EBBF7B",
+      "family": "warm",
+      "sortOrder": 9
+    },
+    {
+      "code": "NP W 1590",
+      "nameEn": "Apricot Glow",
+      "nameTh": "แอปริคอต",
+      "hex": "#F2AF7B",
+      "family": "warm",
+      "sortOrder": 10
+    },
+    {
+      "code": "NP W 1599",
+      "nameEn": "Mango Tango",
+      "nameTh": "มะม่วงสุก",
+      "hex": "#F09C4F",
+      "family": "warm",
+      "sortOrder": 11
+    },
+    {
+      "code": "NP W 1608",
+      "nameEn": "Coral Blush",
+      "nameTh": "ปะการัง",
+      "hex": "#E38D85",
+      "family": "warm",
+      "sortOrder": 12
+    },
+    {
+      "code": "NP W 1617",
+      "nameEn": "Terracotta",
+      "nameTh": "ดินเผา",
+      "hex": "#CB735B",
+      "family": "warm",
+      "sortOrder": 13
+    },
+    {
+      "code": "NP W 1626",
+      "nameEn": "Brick Red",
+      "nameTh": "แดงอิฐ",
+      "hex": "#A9473D",
+      "family": "warm",
+      "sortOrder": 14
+    },
+    {
+      "code": "NP W 1635",
+      "nameEn": "Chili Red",
+      "nameTh": "แดงพริก",
+      "hex": "#B53934",
+      "family": "warm",
+      "sortOrder": 15
+    },
+    {
+      "code": "NP E 1644",
+      "nameEn": "Latte Beige",
+      "nameTh": "ลาเต้",
+      "hex": "#CCB39B",
+      "family": "earth",
+      "sortOrder": 16
+    },
+    {
+      "code": "NP E 1653",
+      "nameEn": "Khaki Earth",
+      "nameTh": "กากี",
+      "hex": "#9D8B6B",
+      "family": "earth",
+      "sortOrder": 17
+    },
+    {
+      "code": "NP E 1662",
+      "nameEn": "Taupe Mocha",
+      "nameTh": "โมคา",
+      "hex": "#A68B73",
+      "family": "earth",
+      "sortOrder": 18
+    },
+    {
+      "code": "NP E 1671",
+      "nameEn": "Clay Brown",
+      "nameTh": "น้ำตาลดินเหนียว",
+      "hex": "#926E56",
+      "family": "earth",
+      "sortOrder": 19
+    },
+    {
+      "code": "NP E 1680",
+      "nameEn": "Cocoa Brown",
+      "nameTh": "โกโก้",
+      "hex": "#7F6351",
+      "family": "earth",
+      "sortOrder": 20
+    },
+    {
+      "code": "NP E 1689",
+      "nameEn": "Walnut",
+      "nameTh": "วอลนัท",
+      "hex": "#614A3D",
+      "family": "earth",
+      "sortOrder": 21
+    },
+    {
+      "code": "NP G 1698",
+      "nameEn": "Lime Zest",
+      "nameTh": "เขียวมะนาว",
+      "hex": "#C5CD7C",
+      "family": "green",
+      "sortOrder": 22
+    },
+    {
+      "code": "NP G 1707",
+      "nameEn": "Mint Breeze",
+      "nameTh": "เขียวมินต์",
+      "hex": "#C0D5C1",
+      "family": "green",
+      "sortOrder": 23
+    },
+    {
+      "code": "NP G 1716",
+      "nameEn": "Sage Green",
+      "nameTh": "เขียวเซจ",
+      "hex": "#AAB69B",
+      "family": "green",
+      "sortOrder": 24
+    },
+    {
+      "code": "NP G 1725",
+      "nameEn": "Eucalyptus",
+      "nameTh": "ยูคาลิปตัส",
+      "hex": "#92AD9C",
+      "family": "green",
+      "sortOrder": 25
+    },
+    {
+      "code": "NP G 1734",
+      "nameEn": "Olive Grove",
+      "nameTh": "เขียวมะกอก",
+      "hex": "#818357",
+      "family": "green",
+      "sortOrder": 26
+    },
+    {
+      "code": "NP G 1743",
+      "nameEn": "Forest Green",
+      "nameTh": "เขียวป่า",
+      "hex": "#4D604A",
+      "family": "green",
+      "sortOrder": 27
+    },
+    {
+      "code": "NP B 1752",
+      "nameEn": "Sky Mist",
+      "nameTh": "ฟ้าหมอก",
+      "hex": "#C6D5E0",
+      "family": "blue",
+      "sortOrder": 28
+    },
+    {
+      "code": "NP B 1761",
+      "nameEn": "Powder Blue",
+      "nameTh": "ฟ้าผง",
+      "hex": "#ABC2D5",
+      "family": "blue",
+      "sortOrder": 29
+    },
+    {
+      "code": "NP B 1770",
+      "nameEn": "Cornflower",
+      "nameTh": "ฟ้าคอร์นฟลาวเวอร์",
+      "hex": "#819BC5",
+      "family": "blue",
+      "sortOrder": 30
+    },
+    {
+      "code": "NP B 1779",
+      "nameEn": "Ocean Teal",
+      "nameTh": "เขียวทะเล",
+      "hex": "#618B98",
+      "family": "blue",
+      "sortOrder": 31
+    },
+    {
+      "code": "NP B 1788",
+      "nameEn": "Denim Blue",
+      "nameTh": "น้ำเงินเดนิม",
+      "hex": "#526D93",
+      "family": "blue",
+      "sortOrder": 32
+    },
+    {
+      "code": "NP B 1797",
+      "nameEn": "Navy Deep",
+      "nameTh": "น้ำเงินเข้ม",
+      "hex": "#313E5D",
+      "family": "blue",
+      "sortOrder": 33
+    },
+    {
+      "code": "NP P 1806",
+      "nameEn": "Blush Pink",
+      "nameTh": "ชมพูบลัช",
+      "hex": "#EEC8CD",
+      "family": "purple",
+      "sortOrder": 34
+    },
+    {
+      "code": "NP P 1815",
+      "nameEn": "Rose Quartz",
+      "nameTh": "โรสควอตซ์",
+      "hex": "#E5C1C7",
+      "family": "purple",
+      "sortOrder": 35
+    },
+    {
+      "code": "NP P 1824",
+      "nameEn": "Lavender Haze",
+      "nameTh": "ลาเวนเดอร์",
+      "hex": "#C6B5D1",
+      "family": "purple",
+      "sortOrder": 36
+    },
+    {
+      "code": "NP P 1833",
+      "nameEn": "Dusty Mauve",
+      "nameTh": "ม่วงนวล",
+      "hex": "#B692A1",
+      "family": "purple",
+      "sortOrder": 37
+    },
+    {
+      "code": "NP P 1842",
+      "nameEn": "Plum Wine",
+      "nameTh": "ไวน์พลัม",
+      "hex": "#71495F",
+      "family": "purple",
+      "sortOrder": 38
+    },
+    {
+      "code": "NP P 1851",
+      "nameEn": "Grape",
+      "nameTh": "องุ่น",
+      "hex": "#5F496F",
+      "family": "purple",
+      "sortOrder": 39
+    }
+  ]
+}

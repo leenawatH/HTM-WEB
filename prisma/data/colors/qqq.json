@@ -1,0 +1,331 @@
+{
+  "brandSlug": "qqq",
+  "collection": {
+    "slug": "qqq-colors",
+    "nameEn": "QQQ Colour Range",
+    "nameTh": "QQQ คัลเลอร์ เรนจ์",
+    "description": "ชุดสีตัวอย่างของแบรนด์ QQQ (ข้อมูล hybrid — พร้อมแทนที่ด้วยชาร์ทสีทางการ)"
+  },
+  "colors": [
+    {
+      "code": "QQ-300",
+      "nameEn": "Pure White",
+      "nameTh": "ขาวบริสุทธิ์",
+      "hex": "#FEF3F4",
+      "family": "neutral",
+      "sortOrder": 0
+    },
+    {
+      "code": "QQ-305",
+      "nameEn": "Cotton White",
+      "nameTh": "ขาวนวล",
+      "hex": "#F6EAE6",
+      "family": "neutral",
+      "sortOrder": 1
+    },
+    {
+      "code": "QQ-310",
+      "nameEn": "Warm Ivory",
+      "nameTh": "สีงาช้าง",
+      "hex": "#F0DFD3",
+      "family": "neutral",
+      "sortOrder": 2
+    },
+    {
+      "code": "QQ-315",
+      "nameEn": "Soft Almond",
+      "nameTh": "อัลมอนด์",
+      "hex": "#E5D1C1",
+      "family": "neutral",
+      "sortOrder": 3
+    },
+    {
+      "code": "QQ-320",
+      "nameEn": "Pale Linen",
+      "nameTh": "ลินินอ่อน",
+      "hex": "#DFCCC3",
+      "family": "neutral",
+      "sortOrder": 4
+    },
+    {
+      "code": "QQ-325",
+      "nameEn": "Misty Grey",
+      "nameTh": "เทาหมอก",
+      "hex": "#CEC3C5",
+      "family": "neutral",
+      "sortOrder": 5
+    },
+    {
+      "code": "QQ-330",
+      "nameEn": "Pebble Grey",
+      "nameTh": "เทากรวด",
+      "hex": "#B2A7A7",
+      "family": "neutral",
+      "sortOrder": 6
+    },
+    {
+      "code": "QQ-335",
+      "nameEn": "Charcoal Smoke",
+      "nameTh": "เทาถ่าน",
+      "hex": "#756B6C",
+      "family": "neutral",
+      "sortOrder": 7
+    },
+    {
+      "code": "QQ-340",
+      "nameEn": "Sunlight Yellow",
+      "nameTh": "เหลืองแสงแดด",
+      "hex": "#FBCD6D",
+      "family": "warm",
+      "sortOrder": 8
+    },
+    {
+      "code": "QQ-345",
+      "nameEn": "Golden Sand",
+      "nameTh": "ทรายทอง",
+      "hex": "#EFBD7D",
+      "family": "warm",
+      "sortOrder": 9
+    },
+    {
+      "code": "QQ-350",
+      "nameEn": "Apricot Glow",
+      "nameTh": "แอปริคอต",
+      "hex": "#F6AD7D",
+      "family": "warm",
+      "sortOrder": 10
+    },
+    {
+      "code": "QQ-355",
+      "nameEn": "Mango Tango",
+      "nameTh": "มะม่วงสุก",
+      "hex": "#F49A51",
+      "family": "warm",
+      "sortOrder": 11
+    },
+    {
+      "code": "QQ-360",
+      "nameEn": "Coral Blush",
+      "nameTh": "ปะการัง",
+      "hex": "#E78B87",
+      "family": "warm",
+      "sortOrder": 12
+    },
+    {
+      "code": "QQ-365",
+      "nameEn": "Terracotta",
+      "nameTh": "ดินเผา",
+      "hex": "#CF715D",
+      "family": "warm",
+      "sortOrder": 13
+    },
+    {
+      "code": "QQ-370",
+      "nameEn": "Brick Red",
+      "nameTh": "แดงอิฐ",
+      "hex": "#AD453F",
+      "family": "warm",
+      "sortOrder": 14
+    },
+    {
+      "code": "QQ-375",
+      "nameEn": "Chili Red",
+      "nameTh": "แดงพริก",
+      "hex": "#B93736",
+      "family": "warm",
+      "sortOrder": 15
+    },
+    {
+      "code": "QQ-380",
+      "nameEn": "Latte Beige",
+      "nameTh": "ลาเต้",
+      "hex": "#D0B19D",
+      "family": "earth",
+      "sortOrder": 16
+    },
+    {
+      "code": "QQ-385",
+      "nameEn": "Khaki Earth",
+      "nameTh": "กากี",
+      "hex": "#A1896D",
+      "family": "earth",
+      "sortOrder": 17
+    },
+    {
+      "code": "QQ-390",
+      "nameEn": "Taupe Mocha",
+      "nameTh": "โมคา",
+      "hex": "#AA8975",
+      "family": "earth",
+      "sortOrder": 18
+    },
+    {
+      "code": "QQ-395",
+      "nameEn": "Clay Brown",
+      "nameTh": "น้ำตาลดินเหนียว",
+      "hex": "#966C58",
+      "family": "earth",
+      "sortOrder": 19
+    },
+    {
+      "code": "QQ-400",
+      "nameEn": "Cocoa Brown",
+      "nameTh": "โกโก้",
+      "hex": "#836153",
+      "family": "earth",
+      "sortOrder": 20
+    },
+    {
+      "code": "QQ-405",
+      "nameEn": "Walnut",
+      "nameTh": "วอลนัท",
+      "hex": "#65483F",
+      "family": "earth",
+      "sortOrder": 21
+    },
+    {
+      "code": "QQ-410",
+      "nameEn": "Lime Zest",
+      "nameTh": "เขียวมะนาว",
+      "hex": "#C9CB7E",
+      "family": "green",
+      "sortOrder": 22
+    },
+    {
+      "code": "QQ-415",
+      "nameEn": "Mint Breeze",
+      "nameTh": "เขียวมินต์",
+      "hex": "#C4D3C3",
+      "family": "green",
+      "sortOrder": 23
+    },
+    {
+      "code": "QQ-420",
+      "nameEn": "Sage Green",
+      "nameTh": "เขียวเซจ",
+      "hex": "#AEB49D",
+      "family": "green",
+      "sortOrder": 24
+    },
+    {
+      "code": "QQ-425",
+      "nameEn": "Eucalyptus",
+      "nameTh": "ยูคาลิปตัส",
+      "hex": "#96AB9E",
+      "family": "green",
+      "sortOrder": 25
+    },
+    {
+      "code": "QQ-430",
+      "nameEn": "Olive Grove",
+      "nameTh": "เขียวมะกอก",
+      "hex": "#858159",
+      "family": "green",
+      "sortOrder": 26
+    },
+    {
+      "code": "QQ-435",
+      "nameEn": "Forest Green",
+      "nameTh": "เขียวป่า",
+      "hex": "#515E4C",
+      "family": "green",
+      "sortOrder": 27
+    },
+    {
+      "code": "QQ-440",
+      "nameEn": "Sky Mist",
+      "nameTh": "ฟ้าหมอก",
+      "hex": "#CAD3E2",
+      "family": "blue",
+      "sortOrder": 28
+    },
+    {
+      "code": "QQ-445",
+      "nameEn": "Powder Blue",
+      "nameTh": "ฟ้าผง",
+      "hex": "#AFC0D7",
+      "family": "blue",
+      "sortOrder": 29
+    },
+    {
+      "code": "QQ-450",
+      "nameEn": "Cornflower",
+      "nameTh": "ฟ้าคอร์นฟลาวเวอร์",
+      "hex": "#8599C7",
+      "family": "blue",
+      "sortOrder": 30
+    },
+    {
+      "code": "QQ-455",
+      "nameEn": "Ocean Teal",
+      "nameTh": "เขียวทะเล",
+      "hex": "#65899A",
+      "family": "blue",
+      "sortOrder": 31
+    },
+    {
+      "code": "QQ-460",
+      "nameEn": "Denim Blue",
+      "nameTh": "น้ำเงินเดนิม",
+      "hex": "#566B95",
+      "family": "blue",
+      "sortOrder": 32
+    },
+    {
+      "code": "QQ-465",
+      "nameEn": "Navy Deep",
+      "nameTh": "น้ำเงินเข้ม",
+      "hex": "#353C5F",
+      "family": "blue",
+      "sortOrder": 33
+    },
+    {
+      "code": "QQ-470",
+      "nameEn": "Blush Pink",
+      "nameTh": "ชมพูบลัช",
+      "hex": "#F2C6CF",
+      "family": "purple",
+      "sortOrder": 34
+    },
+    {
+      "code": "QQ-475",
+      "nameEn": "Rose Quartz",
+      "nameTh": "โรสควอตซ์",
+      "hex": "#E9BFC9",
+      "family": "purple",
+      "sortOrder": 35
+    },
+    {
+      "code": "QQ-480",
+      "nameEn": "Lavender Haze",
+      "nameTh": "ลาเวนเดอร์",
+      "hex": "#CAB3D3",
+      "family": "purple",
+      "sortOrder": 36
+    },
+    {
+      "code": "QQ-485",
+      "nameEn": "Dusty Mauve",
+      "nameTh": "ม่วงนวล",
+      "hex": "#BA90A3",
+      "family": "purple",
+      "sortOrder": 37
+    },
+    {
+      "code": "QQ-490",
+      "nameEn": "Plum Wine",
+      "nameTh": "ไวน์พลัม",
+      "hex": "#754761",
+      "family": "purple",
+      "sortOrder": 38
+    },
+    {
+      "code": "QQ-495",
+      "nameEn": "Grape",
+      "nameTh": "องุ่น",
+      "hex": "#634771",
+      "family": "purple",
+      "sortOrder": 39
+    }
+  ]
+}

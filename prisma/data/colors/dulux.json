@@ -1,0 +1,331 @@
+{
+  "brandSlug": "dulux",
+  "collection": {
+    "slug": "dulux-colors",
+    "nameEn": "Dulux Colour Palette",
+    "nameTh": "ดูลักซ์ คัลเลอร์ พาเลตต์",
+    "description": "ชุดสีตัวอย่างของแบรนด์ DULUX (ข้อมูล hybrid — พร้อมแทนที่ด้วยชาร์ทสีทางการ)"
+  },
+  "colors": [
+    {
+      "code": "DLX 30YY 60/120",
+      "nameEn": "Pure White",
+      "nameTh": "ขาวบริสุทธิ์",
+      "hex": "#FCF4F3",
+      "family": "neutral",
+      "sortOrder": 0
+    },
+    {
+      "code": "DLX 31YY 61/124",
+      "nameEn": "Cotton White",
+      "nameTh": "ขาวนวล",
+      "hex": "#F4EBE5",
+      "family": "neutral",
+      "sortOrder": 1
+    },
+    {
+      "code": "DLX 32YY 62/128",
+      "nameEn": "Warm Ivory",
+      "nameTh": "สีงาช้าง",
+      "hex": "#EEE0D2",
+      "family": "neutral",
+      "sortOrder": 2
+    },
+    {
+      "code": "DLX 33YY 63/132",
+      "nameEn": "Soft Almond",
+      "nameTh": "อัลมอนด์",
+      "hex": "#E3D2C0",
+      "family": "neutral",
+      "sortOrder": 3
+    },
+    {
+      "code": "DLX 34YY 64/136",
+      "nameEn": "Pale Linen",
+      "nameTh": "ลินินอ่อน",
+      "hex": "#DDCDC2",
+      "family": "neutral",
+      "sortOrder": 4
+    },
+    {
+      "code": "DLX 35YY 65/140",
+      "nameEn": "Misty Grey",
+      "nameTh": "เทาหมอก",
+      "hex": "#CCC4C4",
+      "family": "neutral",
+      "sortOrder": 5
+    },
+    {
+      "code": "DLX 36YY 66/144",
+      "nameEn": "Pebble Grey",
+      "nameTh": "เทากรวด",
+      "hex": "#B0A8A6",
+      "family": "neutral",
+      "sortOrder": 6
+    },
+    {
+      "code": "DLX 37YY 67/148",
+      "nameEn": "Charcoal Smoke",
+      "nameTh": "เทาถ่าน",
+      "hex": "#736C6B",
+      "family": "neutral",
+      "sortOrder": 7
+    },
+    {
+      "code": "DLX 38YY 68/152",
+      "nameEn": "Sunlight Yellow",
+      "nameTh": "เหลืองแสงแดด",
+      "hex": "#F9CE6C",
+      "family": "warm",
+      "sortOrder": 8
+    },
+    {
+      "code": "DLX 39YY 69/156",
+      "nameEn": "Golden Sand",
+      "nameTh": "ทรายทอง",
+      "hex": "#EDBE7C",
+      "family": "warm",
+      "sortOrder": 9
+    },
+    {
+      "code": "DLX 40YY 70/160",
+      "nameEn": "Apricot Glow",
+      "nameTh": "แอปริคอต",
+      "hex": "#F4AE7C",
+      "family": "warm",
+      "sortOrder": 10
+    },
+    {
+      "code": "DLX 41YY 71/164",
+      "nameEn": "Mango Tango",
+      "nameTh": "มะม่วงสุก",
+      "hex": "#F29B50",
+      "family": "warm",
+      "sortOrder": 11
+    },
+    {
+      "code": "DLX 42YY 72/168",
+      "nameEn": "Coral Blush",
+      "nameTh": "ปะการัง",
+      "hex": "#E58C86",
+      "family": "warm",
+      "sortOrder": 12
+    },
+    {
+      "code": "DLX 43YY 73/172",
+      "nameEn": "Terracotta",
+      "nameTh": "ดินเผา",
+      "hex": "#CD725C",
+      "family": "warm",
+      "sortOrder": 13
+    },
+    {
+      "code": "DLX 44YY 74/176",
+      "nameEn": "Brick Red",
+      "nameTh": "แดงอิฐ",
+      "hex": "#AB463E",
+      "family": "warm",
+      "sortOrder": 14
+    },
+    {
+      "code": "DLX 45YY 75/180",
+      "nameEn": "Chili Red",
+      "nameTh": "แดงพริก",
+      "hex": "#B73835",
+      "family": "warm",
+      "sortOrder": 15
+    },
+    {
+      "code": "DLX 46YY 76/184",
+      "nameEn": "Latte Beige",
+      "nameTh": "ลาเต้",
+      "hex": "#CEB29C",
+      "family": "earth",
+      "sortOrder": 16
+    },
+    {
+      "code": "DLX 47YY 77/188",
+      "nameEn": "Khaki Earth",
+      "nameTh": "กากี",
+      "hex": "#9F8A6C",
+      "family": "earth",
+      "sortOrder": 17
+    },
+    {
+      "code": "DLX 48YY 78/192",
+      "nameEn": "Taupe Mocha",
+      "nameTh": "โมคา",
+      "hex": "#A88A74",
+      "family": "earth",
+      "sortOrder": 18
+    },
+    {
+      "code": "DLX 49YY 79/196",
+      "nameEn": "Clay Brown",
+      "nameTh": "น้ำตาลดินเหนียว",
+      "hex": "#946D57",
+      "family": "earth",
+      "sortOrder": 19
+    },
+    {
+      "code": "DLX 50YY 80/200",
+      "nameEn": "Cocoa Brown",
+      "nameTh": "โกโก้",
+      "hex": "#816252",
+      "family": "earth",
+      "sortOrder": 20
+    },
+    {
+      "code": "DLX 51YY 81/204",
+      "nameEn": "Walnut",
+      "nameTh": "วอลนัท",
+      "hex": "#63493E",
+      "family": "earth",
+      "sortOrder": 21
+    },
+    {
+      "code": "DLX 52YY 82/208",
+      "nameEn": "Lime Zest",
+      "nameTh": "เขียวมะนาว",
+      "hex": "#C7CC7D",
+      "family": "green",
+      "sortOrder": 22
+    },
+    {
+      "code": "DLX 53YY 83/212",
+      "nameEn": "Mint Breeze",
+      "nameTh": "เขียวมินต์",
+      "hex": "#C2D4C2",
+      "family": "green",
+      "sortOrder": 23
+    },
+    {
+      "code": "DLX 54YY 84/216",
+      "nameEn": "Sage Green",
+      "nameTh": "เขียวเซจ",
+      "hex": "#ACB59C",
+      "family": "green",
+      "sortOrder": 24
+    },
+    {
+      "code": "DLX 55YY 85/220",
+      "nameEn": "Eucalyptus",
+      "nameTh": "ยูคาลิปตัส",
+      "hex": "#94AC9D",
+      "family": "green",
+      "sortOrder": 25
+    },
+    {
+      "code": "DLX 56YY 86/224",
+      "nameEn": "Olive Grove",
+      "nameTh": "เขียวมะกอก",
+      "hex": "#838258",
+      "family": "green",
+      "sortOrder": 26
+    },
+    {
+      "code": "DLX 57YY 87/228",
+      "nameEn": "Forest Green",
+      "nameTh": "เขียวป่า",
+      "hex": "#4F5F4B",
+      "family": "green",
+      "sortOrder": 27
+    },
+    {
+      "code": "DLX 58YY 88/232",
+      "nameEn": "Sky Mist",
+      "nameTh": "ฟ้าหมอก",
+      "hex": "#C8D4E1",
+      "family": "blue",
+      "sortOrder": 28
+    },
+    {
+      "code": "DLX 59YY 89/236",
+      "nameEn": "Powder Blue",
+      "nameTh": "ฟ้าผง",
+      "hex": "#ADC1D6",
+      "family": "blue",
+      "sortOrder": 29
+    },
+    {
+      "code": "DLX 60YY 90/240",
+      "nameEn": "Cornflower",
+      "nameTh": "ฟ้าคอร์นฟลาวเวอร์",
+      "hex": "#839AC6",
+      "family": "blue",
+      "sortOrder": 30
+    },
+    {
+      "code": "DLX 61YY 91/244",
+      "nameEn": "Ocean Teal",
+      "nameTh": "เขียวทะเล",
+      "hex": "#638A99",
+      "family": "blue",
+      "sortOrder": 31
+    },
+    {
+      "code": "DLX 62YY 92/248",
+      "nameEn": "Denim Blue",
+      "nameTh": "น้ำเงินเดนิม",
+      "hex": "#546C94",
+      "family": "blue",
+      "sortOrder": 32
+    },
+    {
+      "code": "DLX 63YY 93/252",
+      "nameEn": "Navy Deep",
+      "nameTh": "น้ำเงินเข้ม",
+      "hex": "#333D5E",
+      "family": "blue",
+      "sortOrder": 33
+    },
+    {
+      "code": "DLX 64YY 94/256",
+      "nameEn": "Blush Pink",
+      "nameTh": "ชมพูบลัช",
+      "hex": "#F0C7CE",
+      "family": "purple",
+      "sortOrder": 34
+    },
+    {
+      "code": "DLX 65YY 95/260",
+      "nameEn": "Rose Quartz",
+      "nameTh": "โรสควอตซ์",
+      "hex": "#E7C0C8",
+      "family": "purple",
+      "sortOrder": 35
+    },
+    {
+      "code": "DLX 66YY 96/264",
+      "nameEn": "Lavender Haze",
+      "nameTh": "ลาเวนเดอร์",
+      "hex": "#C8B4D2",
+      "family": "purple",
+      "sortOrder": 36
+    },
+    {
+      "code": "DLX 67YY 97/268",
+      "nameEn": "Dusty Mauve",
+      "nameTh": "ม่วงนวล",
+      "hex": "#B891A2",
+      "family": "purple",
+      "sortOrder": 37
+    },
+    {
+      "code": "DLX 68YY 98/272",
+      "nameEn": "Plum Wine",
+      "nameTh": "ไวน์พลัม",
+      "hex": "#734860",
+      "family": "purple",
+      "sortOrder": 38
+    },
+    {
+      "code": "DLX 69YY 99/276",
+      "nameEn": "Grape",
+      "nameTh": "องุ่น",
+      "hex": "#614870",
+      "family": "purple",
+      "sortOrder": 39
+    }
+  ]
+}

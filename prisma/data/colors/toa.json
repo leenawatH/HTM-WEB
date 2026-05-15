@@ -1,0 +1,331 @@
+{
+  "brandSlug": "toa",
+  "collection": {
+    "slug": "toa-colors",
+    "nameEn": "TOA Color World",
+    "nameTh": "TOA คัลเลอร์ เวิลด์",
+    "description": "ชุดสีตัวอย่างของแบรนด์ TOA (ข้อมูล hybrid — พร้อมแทนที่ด้วยชาร์ทสีทางการ)"
+  },
+  "colors": [
+    {
+      "code": "TOA 1000",
+      "nameEn": "Pure White",
+      "nameTh": "ขาวบริสุทธิ์",
+      "hex": "#F7F6F1",
+      "family": "neutral",
+      "sortOrder": 0
+    },
+    {
+      "code": "TOA 1011",
+      "nameEn": "Cotton White",
+      "nameTh": "ขาวนวล",
+      "hex": "#EFEDE3",
+      "family": "neutral",
+      "sortOrder": 1
+    },
+    {
+      "code": "TOA 1022",
+      "nameEn": "Warm Ivory",
+      "nameTh": "สีงาช้าง",
+      "hex": "#E9E2D0",
+      "family": "neutral",
+      "sortOrder": 2
+    },
+    {
+      "code": "TOA 1033",
+      "nameEn": "Soft Almond",
+      "nameTh": "อัลมอนด์",
+      "hex": "#DED4BE",
+      "family": "neutral",
+      "sortOrder": 3
+    },
+    {
+      "code": "TOA 1044",
+      "nameEn": "Pale Linen",
+      "nameTh": "ลินินอ่อน",
+      "hex": "#D8CFC0",
+      "family": "neutral",
+      "sortOrder": 4
+    },
+    {
+      "code": "TOA 1055",
+      "nameEn": "Misty Grey",
+      "nameTh": "เทาหมอก",
+      "hex": "#C7C6C2",
+      "family": "neutral",
+      "sortOrder": 5
+    },
+    {
+      "code": "TOA 1066",
+      "nameEn": "Pebble Grey",
+      "nameTh": "เทากรวด",
+      "hex": "#ABAAA4",
+      "family": "neutral",
+      "sortOrder": 6
+    },
+    {
+      "code": "TOA 1077",
+      "nameEn": "Charcoal Smoke",
+      "nameTh": "เทาถ่าน",
+      "hex": "#6E6E69",
+      "family": "neutral",
+      "sortOrder": 7
+    },
+    {
+      "code": "TOA 1088",
+      "nameEn": "Sunlight Yellow",
+      "nameTh": "เหลืองแสงแดด",
+      "hex": "#F4D06A",
+      "family": "warm",
+      "sortOrder": 8
+    },
+    {
+      "code": "TOA 1099",
+      "nameEn": "Golden Sand",
+      "nameTh": "ทรายทอง",
+      "hex": "#E8C07A",
+      "family": "warm",
+      "sortOrder": 9
+    },
+    {
+      "code": "TOA 1110",
+      "nameEn": "Apricot Glow",
+      "nameTh": "แอปริคอต",
+      "hex": "#EFB07A",
+      "family": "warm",
+      "sortOrder": 10
+    },
+    {
+      "code": "TOA 1121",
+      "nameEn": "Mango Tango",
+      "nameTh": "มะม่วงสุก",
+      "hex": "#ED9D4E",
+      "family": "warm",
+      "sortOrder": 11
+    },
+    {
+      "code": "TOA 1132",
+      "nameEn": "Coral Blush",
+      "nameTh": "ปะการัง",
+      "hex": "#E08E84",
+      "family": "warm",
+      "sortOrder": 12
+    },
+    {
+      "code": "TOA 1143",
+      "nameEn": "Terracotta",
+      "nameTh": "ดินเผา",
+      "hex": "#C8745A",
+      "family": "warm",
+      "sortOrder": 13
+    },
+    {
+      "code": "TOA 1154",
+      "nameEn": "Brick Red",
+      "nameTh": "แดงอิฐ",
+      "hex": "#A6483C",
+      "family": "warm",
+      "sortOrder": 14
+    },
+    {
+      "code": "TOA 1165",
+      "nameEn": "Chili Red",
+      "nameTh": "แดงพริก",
+      "hex": "#B23A33",
+      "family": "warm",
+      "sortOrder": 15
+    },
+    {
+      "code": "TOA 1176",
+      "nameEn": "Latte Beige",
+      "nameTh": "ลาเต้",
+      "hex": "#C9B49A",
+      "family": "earth",
+      "sortOrder": 16
+    },
+    {
+      "code": "TOA 1187",
+      "nameEn": "Khaki Earth",
+      "nameTh": "กากี",
+      "hex": "#9A8C6A",
+      "family": "earth",
+      "sortOrder": 17
+    },
+    {
+      "code": "TOA 1198",
+      "nameEn": "Taupe Mocha",
+      "nameTh": "โมคา",
+      "hex": "#A38C72",
+      "family": "earth",
+      "sortOrder": 18
+    },
+    {
+      "code": "TOA 1209",
+      "nameEn": "Clay Brown",
+      "nameTh": "น้ำตาลดินเหนียว",
+      "hex": "#8F6F55",
+      "family": "earth",
+      "sortOrder": 19
+    },
+    {
+      "code": "TOA 1220",
+      "nameEn": "Cocoa Brown",
+      "nameTh": "โกโก้",
+      "hex": "#7C6450",
+      "family": "earth",
+      "sortOrder": 20
+    },
+    {
+      "code": "TOA 1231",
+      "nameEn": "Walnut",
+      "nameTh": "วอลนัท",
+      "hex": "#5E4B3C",
+      "family": "earth",
+      "sortOrder": 21
+    },
+    {
+      "code": "TOA 1242",
+      "nameEn": "Lime Zest",
+      "nameTh": "เขียวมะนาว",
+      "hex": "#C2CE7B",
+      "family": "green",
+      "sortOrder": 22
+    },
+    {
+      "code": "TOA 1253",
+      "nameEn": "Mint Breeze",
+      "nameTh": "เขียวมินต์",
+      "hex": "#BDD6C0",
+      "family": "green",
+      "sortOrder": 23
+    },
+    {
+      "code": "TOA 1264",
+      "nameEn": "Sage Green",
+      "nameTh": "เขียวเซจ",
+      "hex": "#A7B79A",
+      "family": "green",
+      "sortOrder": 24
+    },
+    {
+      "code": "TOA 1275",
+      "nameEn": "Eucalyptus",
+      "nameTh": "ยูคาลิปตัส",
+      "hex": "#8FAE9B",
+      "family": "green",
+      "sortOrder": 25
+    },
+    {
+      "code": "TOA 1286",
+      "nameEn": "Olive Grove",
+      "nameTh": "เขียวมะกอก",
+      "hex": "#7E8456",
+      "family": "green",
+      "sortOrder": 26
+    },
+    {
+      "code": "TOA 1297",
+      "nameEn": "Forest Green",
+      "nameTh": "เขียวป่า",
+      "hex": "#4A6149",
+      "family": "green",
+      "sortOrder": 27
+    },
+    {
+      "code": "TOA 1308",
+      "nameEn": "Sky Mist",
+      "nameTh": "ฟ้าหมอก",
+      "hex": "#C3D6DF",
+      "family": "blue",
+      "sortOrder": 28
+    },
+    {
+      "code": "TOA 1319",
+      "nameEn": "Powder Blue",
+      "nameTh": "ฟ้าผง",
+      "hex": "#A8C3D4",
+      "family": "blue",
+      "sortOrder": 29
+    },
+    {
+      "code": "TOA 1330",
+      "nameEn": "Cornflower",
+      "nameTh": "ฟ้าคอร์นฟลาวเวอร์",
+      "hex": "#7E9CC4",
+      "family": "blue",
+      "sortOrder": 30
+    },
+    {
+      "code": "TOA 1341",
+      "nameEn": "Ocean Teal",
+      "nameTh": "เขียวทะเล",
+      "hex": "#5E8C97",
+      "family": "blue",
+      "sortOrder": 31
+    },
+    {
+      "code": "TOA 1352",
+      "nameEn": "Denim Blue",
+      "nameTh": "น้ำเงินเดนิม",
+      "hex": "#4F6E92",
+      "family": "blue",
+      "sortOrder": 32
+    },
+    {
+      "code": "TOA 1363",
+      "nameEn": "Navy Deep",
+      "nameTh": "น้ำเงินเข้ม",
+      "hex": "#2E3F5C",
+      "family": "blue",
+      "sortOrder": 33
+    },
+    {
+      "code": "TOA 1374",
+      "nameEn": "Blush Pink",
+      "nameTh": "ชมพูบลัช",
+      "hex": "#EBC9CC",
+      "family": "purple",
+      "sortOrder": 34
+    },
+    {
+      "code": "TOA 1385",
+      "nameEn": "Rose Quartz",
+      "nameTh": "โรสควอตซ์",
+      "hex": "#E2C2C6",
+      "family": "purple",
+      "sortOrder": 35
+    },
+    {
+      "code": "TOA 1396",
+      "nameEn": "Lavender Haze",
+      "nameTh": "ลาเวนเดอร์",
+      "hex": "#C3B6D0",
+      "family": "purple",
+      "sortOrder": 36
+    },
+    {
+      "code": "TOA 1407",
+      "nameEn": "Dusty Mauve",
+      "nameTh": "ม่วงนวล",
+      "hex": "#B393A0",
+      "family": "purple",
+      "sortOrder": 37
+    },
+    {
+      "code": "TOA 1418",
+      "nameEn": "Plum Wine",
+      "nameTh": "ไวน์พลัม",
+      "hex": "#6E4A5E",
+      "family": "purple",
+      "sortOrder": 38
+    },
+    {
+      "code": "TOA 1429",
+      "nameEn": "Grape",
+      "nameTh": "องุ่น",
+      "hex": "#5C4A6E",
+      "family": "purple",
+      "sortOrder": 39
+    }
+  ]
+}

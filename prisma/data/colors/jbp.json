@@ -1,0 +1,331 @@
+{
+  "brandSlug": "jbp",
+  "collection": {
+    "slug": "jbp-colors",
+    "nameEn": "JBP Colour Selection",
+    "nameTh": "JBP คัลเลอร์ ซีเล็คชัน",
+    "description": "ชุดสีตัวอย่างของแบรนด์ JBP (ข้อมูล hybrid — พร้อมแทนที่ด้วยชาร์ทสีทางการ)"
+  },
+  "colors": [
+    {
+      "code": "JBP-N201",
+      "nameEn": "Pure White",
+      "nameTh": "ขาวบริสุทธิ์",
+      "hex": "#F8F6F1",
+      "family": "neutral",
+      "sortOrder": 0
+    },
+    {
+      "code": "JBP-N202",
+      "nameEn": "Cotton White",
+      "nameTh": "ขาวนวล",
+      "hex": "#F0EDE3",
+      "family": "neutral",
+      "sortOrder": 1
+    },
+    {
+      "code": "JBP-N203",
+      "nameEn": "Warm Ivory",
+      "nameTh": "สีงาช้าง",
+      "hex": "#EAE2D0",
+      "family": "neutral",
+      "sortOrder": 2
+    },
+    {
+      "code": "JBP-N204",
+      "nameEn": "Soft Almond",
+      "nameTh": "อัลมอนด์",
+      "hex": "#DFD4BE",
+      "family": "neutral",
+      "sortOrder": 3
+    },
+    {
+      "code": "JBP-N205",
+      "nameEn": "Pale Linen",
+      "nameTh": "ลินินอ่อน",
+      "hex": "#D9CFC0",
+      "family": "neutral",
+      "sortOrder": 4
+    },
+    {
+      "code": "JBP-N206",
+      "nameEn": "Misty Grey",
+      "nameTh": "เทาหมอก",
+      "hex": "#C8C6C2",
+      "family": "neutral",
+      "sortOrder": 5
+    },
+    {
+      "code": "JBP-N207",
+      "nameEn": "Pebble Grey",
+      "nameTh": "เทากรวด",
+      "hex": "#ACAAA4",
+      "family": "neutral",
+      "sortOrder": 6
+    },
+    {
+      "code": "JBP-N208",
+      "nameEn": "Charcoal Smoke",
+      "nameTh": "เทาถ่าน",
+      "hex": "#6F6E69",
+      "family": "neutral",
+      "sortOrder": 7
+    },
+    {
+      "code": "JBP-W209",
+      "nameEn": "Sunlight Yellow",
+      "nameTh": "เหลืองแสงแดด",
+      "hex": "#F5D06A",
+      "family": "warm",
+      "sortOrder": 8
+    },
+    {
+      "code": "JBP-W210",
+      "nameEn": "Golden Sand",
+      "nameTh": "ทรายทอง",
+      "hex": "#E9C07A",
+      "family": "warm",
+      "sortOrder": 9
+    },
+    {
+      "code": "JBP-W211",
+      "nameEn": "Apricot Glow",
+      "nameTh": "แอปริคอต",
+      "hex": "#F0B07A",
+      "family": "warm",
+      "sortOrder": 10
+    },
+    {
+      "code": "JBP-W212",
+      "nameEn": "Mango Tango",
+      "nameTh": "มะม่วงสุก",
+      "hex": "#EE9D4E",
+      "family": "warm",
+      "sortOrder": 11
+    },
+    {
+      "code": "JBP-W213",
+      "nameEn": "Coral Blush",
+      "nameTh": "ปะการัง",
+      "hex": "#E18E84",
+      "family": "warm",
+      "sortOrder": 12
+    },
+    {
+      "code": "JBP-W214",
+      "nameEn": "Terracotta",
+      "nameTh": "ดินเผา",
+      "hex": "#C9745A",
+      "family": "warm",
+      "sortOrder": 13
+    },
+    {
+      "code": "JBP-W215",
+      "nameEn": "Brick Red",
+      "nameTh": "แดงอิฐ",
+      "hex": "#A7483C",
+      "family": "warm",
+      "sortOrder": 14
+    },
+    {
+      "code": "JBP-W216",
+      "nameEn": "Chili Red",
+      "nameTh": "แดงพริก",
+      "hex": "#B33A33",
+      "family": "warm",
+      "sortOrder": 15
+    },
+    {
+      "code": "JBP-E217",
+      "nameEn": "Latte Beige",
+      "nameTh": "ลาเต้",
+      "hex": "#CAB49A",
+      "family": "earth",
+      "sortOrder": 16
+    },
+    {
+      "code": "JBP-E218",
+      "nameEn": "Khaki Earth",
+      "nameTh": "กากี",
+      "hex": "#9B8C6A",
+      "family": "earth",
+      "sortOrder": 17
+    },
+    {
+      "code": "JBP-E219",
+      "nameEn": "Taupe Mocha",
+      "nameTh": "โมคา",
+      "hex": "#A48C72",
+      "family": "earth",
+      "sortOrder": 18
+    },
+    {
+      "code": "JBP-E220",
+      "nameEn": "Clay Brown",
+      "nameTh": "น้ำตาลดินเหนียว",
+      "hex": "#906F55",
+      "family": "earth",
+      "sortOrder": 19
+    },
+    {
+      "code": "JBP-E221",
+      "nameEn": "Cocoa Brown",
+      "nameTh": "โกโก้",
+      "hex": "#7D6450",
+      "family": "earth",
+      "sortOrder": 20
+    },
+    {
+      "code": "JBP-E222",
+      "nameEn": "Walnut",
+      "nameTh": "วอลนัท",
+      "hex": "#5F4B3C",
+      "family": "earth",
+      "sortOrder": 21
+    },
+    {
+      "code": "JBP-G223",
+      "nameEn": "Lime Zest",
+      "nameTh": "เขียวมะนาว",
+      "hex": "#C3CE7B",
+      "family": "green",
+      "sortOrder": 22
+    },
+    {
+      "code": "JBP-G224",
+      "nameEn": "Mint Breeze",
+      "nameTh": "เขียวมินต์",
+      "hex": "#BED6C0",
+      "family": "green",
+      "sortOrder": 23
+    },
+    {
+      "code": "JBP-G225",
+      "nameEn": "Sage Green",
+      "nameTh": "เขียวเซจ",
+      "hex": "#A8B79A",
+      "family": "green",
+      "sortOrder": 24
+    },
+    {
+      "code": "JBP-G226",
+      "nameEn": "Eucalyptus",
+      "nameTh": "ยูคาลิปตัส",
+      "hex": "#90AE9B",
+      "family": "green",
+      "sortOrder": 25
+    },
+    {
+      "code": "JBP-G227",
+      "nameEn": "Olive Grove",
+      "nameTh": "เขียวมะกอก",
+      "hex": "#7F8456",
+      "family": "green",
+      "sortOrder": 26
+    },
+    {
+      "code": "JBP-G228",
+      "nameEn": "Forest Green",
+      "nameTh": "เขียวป่า",
+      "hex": "#4B6149",
+      "family": "green",
+      "sortOrder": 27
+    },
+    {
+      "code": "JBP-B229",
+      "nameEn": "Sky Mist",
+      "nameTh": "ฟ้าหมอก",
+      "hex": "#C4D6DF",
+      "family": "blue",
+      "sortOrder": 28
+    },
+    {
+      "code": "JBP-B230",
+      "nameEn": "Powder Blue",
+      "nameTh": "ฟ้าผง",
+      "hex": "#A9C3D4",
+      "family": "blue",
+      "sortOrder": 29
+    },
+    {
+      "code": "JBP-B231",
+      "nameEn": "Cornflower",
+      "nameTh": "ฟ้าคอร์นฟลาวเวอร์",
+      "hex": "#7F9CC4",
+      "family": "blue",
+      "sortOrder": 30
+    },
+    {
+      "code": "JBP-B232",
+      "nameEn": "Ocean Teal",
+      "nameTh": "เขียวทะเล",
+      "hex": "#5F8C97",
+      "family": "blue",
+      "sortOrder": 31
+    },
+    {
+      "code": "JBP-B233",
+      "nameEn": "Denim Blue",
+      "nameTh": "น้ำเงินเดนิม",
+      "hex": "#506E92",
+      "family": "blue",
+      "sortOrder": 32
+    },
+    {
+      "code": "JBP-B234",
+      "nameEn": "Navy Deep",
+      "nameTh": "น้ำเงินเข้ม",
+      "hex": "#2F3F5C",
+      "family": "blue",
+      "sortOrder": 33
+    },
+    {
+      "code": "JBP-P235",
+      "nameEn": "Blush Pink",
+      "nameTh": "ชมพูบลัช",
+      "hex": "#ECC9CC",
+      "family": "purple",
+      "sortOrder": 34
+    },
+    {
+      "code": "JBP-P236",
+      "nameEn": "Rose Quartz",
+      "nameTh": "โรสควอตซ์",
+      "hex": "#E3C2C6",
+      "family": "purple",
+      "sortOrder": 35
+    },
+    {
+      "code": "JBP-P237",
+      "nameEn": "Lavender Haze",
+      "nameTh": "ลาเวนเดอร์",
+      "hex": "#C4B6D0",
+      "family": "purple",
+      "sortOrder": 36
+    },
+    {
+      "code": "JBP-P238",
+      "nameEn": "Dusty Mauve",
+      "nameTh": "ม่วงนวล",
+      "hex": "#B493A0",
+      "family": "purple",
+      "sortOrder": 37
+    },
+    {
+      "code": "JBP-P239",
+      "nameEn": "Plum Wine",
+      "nameTh": "ไวน์พลัม",
+      "hex": "#6F4A5E",
+      "family": "purple",
+      "sortOrder": 38
+    },
+    {
+      "code": "JBP-P240",
+      "nameEn": "Grape",
+      "nameTh": "องุ่น",
+      "hex": "#5D4A6E",
+      "family": "purple",
+      "sortOrder": 39
+    }
+  ]
+}

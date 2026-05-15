@@ -1,0 +1,331 @@
+{
+  "brandSlug": "captain",
+  "collection": {
+    "slug": "captain-colors",
+    "nameEn": "Captain Color Inspiration",
+    "nameTh": "กัปตัน คัลเลอร์ อินสไปเรชัน",
+    "description": "ชุดสีตัวอย่างของแบรนด์ CAPTAIN (ข้อมูล hybrid — พร้อมแทนที่ด้วยชาร์ทสีทางการ)"
+  },
+  "colors": [
+    {
+      "code": "NP2100",
+      "nameEn": "Pure White",
+      "nameTh": "ขาวบริสุทธิ์",
+      "hex": "#F6F7F0",
+      "family": "neutral",
+      "sortOrder": 0
+    },
+    {
+      "code": "NP2107",
+      "nameEn": "Cotton White",
+      "nameTh": "ขาวนวล",
+      "hex": "#EEEEE2",
+      "family": "neutral",
+      "sortOrder": 1
+    },
+    {
+      "code": "NP2114",
+      "nameEn": "Warm Ivory",
+      "nameTh": "สีงาช้าง",
+      "hex": "#E8E3CF",
+      "family": "neutral",
+      "sortOrder": 2
+    },
+    {
+      "code": "NP2121",
+      "nameEn": "Soft Almond",
+      "nameTh": "อัลมอนด์",
+      "hex": "#DDD5BD",
+      "family": "neutral",
+      "sortOrder": 3
+    },
+    {
+      "code": "NP2128",
+      "nameEn": "Pale Linen",
+      "nameTh": "ลินินอ่อน",
+      "hex": "#D7D0BF",
+      "family": "neutral",
+      "sortOrder": 4
+    },
+    {
+      "code": "NP2135",
+      "nameEn": "Misty Grey",
+      "nameTh": "เทาหมอก",
+      "hex": "#C6C7C1",
+      "family": "neutral",
+      "sortOrder": 5
+    },
+    {
+      "code": "NP2142",
+      "nameEn": "Pebble Grey",
+      "nameTh": "เทากรวด",
+      "hex": "#AAABA3",
+      "family": "neutral",
+      "sortOrder": 6
+    },
+    {
+      "code": "NP2149",
+      "nameEn": "Charcoal Smoke",
+      "nameTh": "เทาถ่าน",
+      "hex": "#6D6F68",
+      "family": "neutral",
+      "sortOrder": 7
+    },
+    {
+      "code": "WP2156",
+      "nameEn": "Sunlight Yellow",
+      "nameTh": "เหลืองแสงแดด",
+      "hex": "#F3D169",
+      "family": "warm",
+      "sortOrder": 8
+    },
+    {
+      "code": "WP2163",
+      "nameEn": "Golden Sand",
+      "nameTh": "ทรายทอง",
+      "hex": "#E7C179",
+      "family": "warm",
+      "sortOrder": 9
+    },
+    {
+      "code": "WP2170",
+      "nameEn": "Apricot Glow",
+      "nameTh": "แอปริคอต",
+      "hex": "#EEB179",
+      "family": "warm",
+      "sortOrder": 10
+    },
+    {
+      "code": "WP2177",
+      "nameEn": "Mango Tango",
+      "nameTh": "มะม่วงสุก",
+      "hex": "#EC9E4D",
+      "family": "warm",
+      "sortOrder": 11
+    },
+    {
+      "code": "WP2184",
+      "nameEn": "Coral Blush",
+      "nameTh": "ปะการัง",
+      "hex": "#DF8F83",
+      "family": "warm",
+      "sortOrder": 12
+    },
+    {
+      "code": "WP2191",
+      "nameEn": "Terracotta",
+      "nameTh": "ดินเผา",
+      "hex": "#C77559",
+      "family": "warm",
+      "sortOrder": 13
+    },
+    {
+      "code": "WP2198",
+      "nameEn": "Brick Red",
+      "nameTh": "แดงอิฐ",
+      "hex": "#A5493B",
+      "family": "warm",
+      "sortOrder": 14
+    },
+    {
+      "code": "WP2205",
+      "nameEn": "Chili Red",
+      "nameTh": "แดงพริก",
+      "hex": "#B13B32",
+      "family": "warm",
+      "sortOrder": 15
+    },
+    {
+      "code": "EP2212",
+      "nameEn": "Latte Beige",
+      "nameTh": "ลาเต้",
+      "hex": "#C8B599",
+      "family": "earth",
+      "sortOrder": 16
+    },
+    {
+      "code": "EP2219",
+      "nameEn": "Khaki Earth",
+      "nameTh": "กากี",
+      "hex": "#998D69",
+      "family": "earth",
+      "sortOrder": 17
+    },
+    {
+      "code": "EP2226",
+      "nameEn": "Taupe Mocha",
+      "nameTh": "โมคา",
+      "hex": "#A28D71",
+      "family": "earth",
+      "sortOrder": 18
+    },
+    {
+      "code": "EP2233",
+      "nameEn": "Clay Brown",
+      "nameTh": "น้ำตาลดินเหนียว",
+      "hex": "#8E7054",
+      "family": "earth",
+      "sortOrder": 19
+    },
+    {
+      "code": "EP2240",
+      "nameEn": "Cocoa Brown",
+      "nameTh": "โกโก้",
+      "hex": "#7B654F",
+      "family": "earth",
+      "sortOrder": 20
+    },
+    {
+      "code": "EP2247",
+      "nameEn": "Walnut",
+      "nameTh": "วอลนัท",
+      "hex": "#5D4C3B",
+      "family": "earth",
+      "sortOrder": 21
+    },
+    {
+      "code": "GP2254",
+      "nameEn": "Lime Zest",
+      "nameTh": "เขียวมะนาว",
+      "hex": "#C1CF7A",
+      "family": "green",
+      "sortOrder": 22
+    },
+    {
+      "code": "GP2261",
+      "nameEn": "Mint Breeze",
+      "nameTh": "เขียวมินต์",
+      "hex": "#BCD7BF",
+      "family": "green",
+      "sortOrder": 23
+    },
+    {
+      "code": "GP2268",
+      "nameEn": "Sage Green",
+      "nameTh": "เขียวเซจ",
+      "hex": "#A6B899",
+      "family": "green",
+      "sortOrder": 24
+    },
+    {
+      "code": "GP2275",
+      "nameEn": "Eucalyptus",
+      "nameTh": "ยูคาลิปตัส",
+      "hex": "#8EAF9A",
+      "family": "green",
+      "sortOrder": 25
+    },
+    {
+      "code": "GP2282",
+      "nameEn": "Olive Grove",
+      "nameTh": "เขียวมะกอก",
+      "hex": "#7D8555",
+      "family": "green",
+      "sortOrder": 26
+    },
+    {
+      "code": "GP2289",
+      "nameEn": "Forest Green",
+      "nameTh": "เขียวป่า",
+      "hex": "#496248",
+      "family": "green",
+      "sortOrder": 27
+    },
+    {
+      "code": "BP2296",
+      "nameEn": "Sky Mist",
+      "nameTh": "ฟ้าหมอก",
+      "hex": "#C2D7DE",
+      "family": "blue",
+      "sortOrder": 28
+    },
+    {
+      "code": "BP2303",
+      "nameEn": "Powder Blue",
+      "nameTh": "ฟ้าผง",
+      "hex": "#A7C4D3",
+      "family": "blue",
+      "sortOrder": 29
+    },
+    {
+      "code": "BP2310",
+      "nameEn": "Cornflower",
+      "nameTh": "ฟ้าคอร์นฟลาวเวอร์",
+      "hex": "#7D9DC3",
+      "family": "blue",
+      "sortOrder": 30
+    },
+    {
+      "code": "BP2317",
+      "nameEn": "Ocean Teal",
+      "nameTh": "เขียวทะเล",
+      "hex": "#5D8D96",
+      "family": "blue",
+      "sortOrder": 31
+    },
+    {
+      "code": "BP2324",
+      "nameEn": "Denim Blue",
+      "nameTh": "น้ำเงินเดนิม",
+      "hex": "#4E6F91",
+      "family": "blue",
+      "sortOrder": 32
+    },
+    {
+      "code": "BP2331",
+      "nameEn": "Navy Deep",
+      "nameTh": "น้ำเงินเข้ม",
+      "hex": "#2D405B",
+      "family": "blue",
+      "sortOrder": 33
+    },
+    {
+      "code": "PP2338",
+      "nameEn": "Blush Pink",
+      "nameTh": "ชมพูบลัช",
+      "hex": "#EACACB",
+      "family": "purple",
+      "sortOrder": 34
+    },
+    {
+      "code": "PP2345",
+      "nameEn": "Rose Quartz",
+      "nameTh": "โรสควอตซ์",
+      "hex": "#E1C3C5",
+      "family": "purple",
+      "sortOrder": 35
+    },
+    {
+      "code": "PP2352",
+      "nameEn": "Lavender Haze",
+      "nameTh": "ลาเวนเดอร์",
+      "hex": "#C2B7CF",
+      "family": "purple",
+      "sortOrder": 36
+    },
+    {
+      "code": "PP2359",
+      "nameEn": "Dusty Mauve",
+      "nameTh": "ม่วงนวล",
+      "hex": "#B2949F",
+      "family": "purple",
+      "sortOrder": 37
+    },
+    {
+      "code": "PP2366",
+      "nameEn": "Plum Wine",
+      "nameTh": "ไวน์พลัม",
+      "hex": "#6D4B5D",
+      "family": "purple",
+      "sortOrder": 38
+    },
+    {
+      "code": "PP2373",
+      "nameEn": "Grape",
+      "nameTh": "องุ่น",
+      "hex": "#5B4B6D",
+      "family": "purple",
+      "sortOrder": 39
+    }
+  ]
+}
