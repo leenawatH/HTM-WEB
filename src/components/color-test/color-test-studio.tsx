@@ -163,6 +163,13 @@ export function ColorTestStudio({
 
   // ---- start / stop camera --------------------------------------------
   const startCamera = useCallback(async () => {
+    // camera APIs require a secure context (HTTPS or localhost)
+    if (!navigator.mediaDevices?.getUserMedia) {
+      toast.error(
+        'กล้องใช้งานได้เฉพาะการเชื่อมต่อที่ปลอดภัย (HTTPS) — เปิดเว็บผ่าน https:// หรือเลือก "อัปโหลดรูปภาพ" แทน',
+      );
+      return;
+    }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "environment", width: { ideal: 1280 } },
@@ -190,8 +197,15 @@ export function ColorTestStudio({
           setSegmenterReady(true);
         }
       });
-    } catch {
-      toast.error("ไม่สามารถเข้าถึงกล้องได้ — ลองอัปโหลดรูปแทน");
+    } catch (err) {
+      const name = (err as Error)?.name;
+      if (name === "NotAllowedError") {
+        toast.error("ไม่ได้รับอนุญาตให้ใช้กล้อง — กรุณาอนุญาตการเข้าถึงกล้องในเบราว์เซอร์");
+      } else if (name === "NotFoundError") {
+        toast.error("ไม่พบกล้องบนอุปกรณ์นี้ — ลองอัปโหลดรูปแทน");
+      } else {
+        toast.error("ไม่สามารถเข้าถึงกล้องได้ — ลองอัปโหลดรูปแทน");
+      }
     }
   }, [loop]);
 
