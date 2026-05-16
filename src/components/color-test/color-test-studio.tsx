@@ -162,7 +162,10 @@ export function ColorTestStudio({
   }, [ctx2d]);
 
   // ---- start / stop camera --------------------------------------------
-  const startCamera = useCallback(async () => {
+  // The <video>/<canvas> elements only exist once mode !== "menu", so we
+  // switch into camera mode first and let the effect below acquire the
+  // stream once those elements have actually mounted.
+  const startCamera = useCallback(() => {
     // camera APIs require a secure context (HTTPS or localhost)
     if (!navigator.mediaDevices?.getUserMedia) {
       toast.error(
@@ -170,44 +173,76 @@ export function ColorTestStudio({
       );
       return;
     }
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment", width: { ideal: 1280 } },
-        audio: false,
-      });
-      streamRef.current = stream;
-      const video = videoRef.current;
-      if (!video) return;
-      video.srcObject = stream;
-      await video.play();
+    setMode("camera");
+  }, []);
 
-      const scale = Math.min(1, MAX_W / video.videoWidth);
-      const canvas = canvasRef.current!;
-      canvas.width = Math.round(video.videoWidth * scale);
-      canvas.height = Math.round(video.videoHeight * scale);
+  // acquire the camera stream once the camera view is mounted
+  useEffect(() => {
+    if (mode !== "camera") return;
+    let cancelled = false;
 
-      setMode("camera");
-      setReady(true);
-      rafRef.current = requestAnimationFrame(loop);
-
-      // load person segmenter in the background
-      loadPersonSegmenter().then((seg) => {
-        if (seg) {
-          segmenterRef.current = seg;
-          setSegmenterReady(true);
+    (async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment", width: { ideal: 1280 } },
+          audio: false,
+        });
+        if (cancelled) {
+          stream.getTracks().forEach((t) => t.stop());
+          return;
         }
-      });
-    } catch (err) {
-      const name = (err as Error)?.name;
-      if (name === "NotAllowedError") {
-        toast.error("ไม่ได้รับอนุญาตให้ใช้กล้อง — กรุณาอนุญาตการเข้าถึงกล้องในเบราว์เซอร์");
-      } else if (name === "NotFoundError") {
-        toast.error("ไม่พบกล้องบนอุปกรณ์นี้ — ลองอัปโหลดรูปแทน");
-      } else {
-        toast.error("ไม่สามารถเข้าถึงกล้องได้ — ลองอัปโหลดรูปแทน");
+        streamRef.current = stream;
+        const video = videoRef.current;
+        const canvas = canvasRef.current;
+        if (!video || !canvas) return;
+        video.srcObject = stream;
+        await video.play();
+
+        // videoWidth is 0 until metadata loads — wait for it, otherwise the
+        // canvas would be sized 0×0 and nothing renders
+        if (!video.videoWidth) {
+          await new Promise<void>((resolve) => {
+            video.addEventListener("loadedmetadata", () => resolve(), {
+              once: true,
+            });
+          });
+        }
+        if (cancelled) return;
+
+        const scale = Math.min(1, MAX_W / video.videoWidth);
+        canvas.width = Math.round(video.videoWidth * scale);
+        canvas.height = Math.round(video.videoHeight * scale);
+
+        setReady(true);
+        rafRef.current = requestAnimationFrame(loop);
+
+        // load person segmenter in the background
+        loadPersonSegmenter().then((seg) => {
+          if (seg && !cancelled) {
+            segmenterRef.current = seg;
+            setSegmenterReady(true);
+          }
+        });
+      } catch (err) {
+        // stop the stream so the camera indicator turns off on failure
+        streamRef.current?.getTracks().forEach((t) => t.stop());
+        streamRef.current = null;
+        const name = (err as Error)?.name;
+        if (name === "NotAllowedError") {
+          toast.error("ไม่ได้รับอนุญาตให้ใช้กล้อง — กรุณาอนุญาตการเข้าถึงกล้องในเบราว์เซอร์");
+        } else if (name === "NotFoundError") {
+          toast.error("ไม่พบกล้องบนอุปกรณ์นี้ — ลองอัปโหลดรูปแทน");
+        } else {
+          toast.error("ไม่สามารถเข้าถึงกล้องได้ — ลองอัปโหลดรูปแทน");
+        }
+        if (!cancelled) setMode("menu");
       }
-    }
-  }, [loop]);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [mode, loop]);
 
   const stopCamera = useCallback(() => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
