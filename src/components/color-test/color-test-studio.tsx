@@ -1,31 +1,38 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
-  Camera,
-  Upload,
+  X,
   Aperture,
   Download,
-  RefreshCw,
+  RotateCcw,
   Eye,
   UserRoundX,
   Hand,
+  SlidersHorizontal,
+  Loader2,
+  CameraOff,
+  Eraser,
 } from "lucide-react";
 import { toast } from "sonner";
 import type { ImageSegmenter } from "@mediapipe/tasks-vision";
 import type { ProductColor } from "@/lib/data";
-import { hexToRgb, recolor, samplePatch, type RGB } from "@/lib/color-test/recolor";
+import {
+  hexToRgb,
+  recolor,
+  samplePatch,
+  type RGB,
+} from "@/lib/color-test/recolor";
 import {
   loadPersonSegmenter,
   segmentPeople,
 } from "@/lib/color-test/person-segmenter";
-import { Button } from "@/components/ui/button";
-import { ColorSwatches } from "@/components/color-test/color-swatches";
 import { cn } from "@/lib/utils";
 
-const MAX_W = 640;
+const MAX_W = 720;
 
-type Mode = "menu" | "camera" | "upload";
+type Status = "init" | "live" | "error";
 
 type Cfg = {
   refColor: RGB | null;
@@ -44,7 +51,12 @@ export function ColorTestStudio({
   product: { name: string; slug: string };
   colors: ProductColor[];
 }) {
-  const [mode, setMode] = useState<Mode>("menu");
+  const router = useRouter();
+
+  const [status, setStatus] = useState<Status>("init");
+  const [errorMsg, setErrorMsg] = useState("");
+  const [retryKey, setRetryKey] = useState(0);
+
   const [selectedColor, setSelectedColor] = useState<ProductColor>(colors[0]);
   const [opacity, setOpacity] = useState(0.85);
   const [tolerance, setTolerance] = useState(0.4);
@@ -53,14 +65,14 @@ export function ColorTestStudio({
   const [showOriginal, setShowOriginal] = useState(false);
   const [frozen, setFrozen] = useState(false);
   const [segmenterReady, setSegmenterReady] = useState(false);
-  const [ready, setReady] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef<number | null>(null);
   const dstRef = useRef<ImageData | null>(null);
-  const staticSrcRef = useRef<ImageData | null>(null);
+  const rawRef = useRef<ImageData | null>(null);
   const segmenterRef = useRef<ImageSegmenter | null>(null);
   const cfgRef = useRef<Cfg>({
     refColor: null,
@@ -85,42 +97,20 @@ export function ColorTestStudio({
     };
   }, [refColor, selectedColor, opacity, tolerance, usePerson, showOriginal, frozen]);
 
+  // lock page scroll while the full-screen studio is mounted
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
+
   const ctx2d = useCallback(() => {
     return canvasRef.current?.getContext("2d", {
       willReadFrequently: true,
     }) as CanvasRenderingContext2D | null;
   }, []);
-
-  // ---- static (upload) re-render on control change --------------------
-  const renderStatic = useCallback(() => {
-    const ctx = ctx2d();
-    const canvas = canvasRef.current;
-    const src = staticSrcRef.current;
-    if (!ctx || !canvas || !src) return;
-    const cfg = cfgRef.current;
-    if (cfg.showOriginal || !cfg.refColor) {
-      ctx.putImageData(src, 0, 0);
-      return;
-    }
-    if (
-      !dstRef.current ||
-      dstRef.current.width !== canvas.width ||
-      dstRef.current.height !== canvas.height
-    ) {
-      dstRef.current = ctx.createImageData(canvas.width, canvas.height);
-    }
-    recolor(src, dstRef.current, {
-      refColor: cfg.refColor,
-      paint: cfg.paint,
-      opacity: cfg.opacity,
-      tolerance: cfg.tolerance,
-    });
-    ctx.putImageData(dstRef.current, 0, 0);
-  }, [ctx2d]);
-
-  useEffect(() => {
-    if (mode === "upload") renderStatic();
-  }, [mode, refColor, selectedColor, opacity, tolerance, showOriginal, renderStatic]);
 
   // ---- camera render loop ---------------------------------------------
   const loop = useCallback(() => {
@@ -137,6 +127,7 @@ export function ColorTestStudio({
     if (cfg.showOriginal || !cfg.refColor) return; // raw frame shown
 
     const src = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    rawRef.current = src;
 
     let personMask: Uint8Array | null = null;
     if (cfg.usePerson && segmenterRef.current) {
@@ -161,27 +152,26 @@ export function ColorTestStudio({
     ctx.putImageData(dstRef.current, 0, 0);
   }, [ctx2d]);
 
-  // ---- start / stop camera --------------------------------------------
-  // The <video>/<canvas> elements only exist once mode !== "menu", so we
-  // switch into camera mode first and let the effect below acquire the
-  // stream once those elements have actually mounted.
-  const startCamera = useCallback(() => {
-    // camera APIs require a secure context (HTTPS or localhost)
-    if (!navigator.mediaDevices?.getUserMedia) {
-      toast.error(
-        'กล้องใช้งานได้เฉพาะการเชื่อมต่อที่ปลอดภัย (HTTPS) — เปิดเว็บผ่าน https:// หรือเลือก "อัปโหลดรูปภาพ" แทน',
-      );
-      return;
-    }
-    setMode("camera");
+  const stopCamera = useCallback(() => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = null;
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
   }, []);
 
-  // acquire the camera stream once the camera view is mounted
+  // ---- acquire the camera (runs on mount and on retry) ----------------
   useEffect(() => {
-    if (mode !== "camera") return;
     let cancelled = false;
 
     (async () => {
+      // camera APIs require a secure context (HTTPS or localhost)
+      if (!navigator.mediaDevices?.getUserMedia) {
+        setErrorMsg(
+          "กล้องใช้งานได้เฉพาะการเชื่อมต่อที่ปลอดภัย (HTTPS) เท่านั้น",
+        );
+        setStatus("error");
+        return;
+      }
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: "environment", width: { ideal: 1280 } },
@@ -198,8 +188,8 @@ export function ColorTestStudio({
         video.srcObject = stream;
         await video.play();
 
-        // videoWidth is 0 until metadata loads — wait for it, otherwise the
-        // canvas would be sized 0×0 and nothing renders
+        // videoWidth is 0 until metadata loads — wait, or the canvas
+        // would be sized 0×0 and nothing would render
         if (!video.videoWidth) {
           await new Promise<void>((resolve) => {
             video.addEventListener("loadedmetadata", () => resolve(), {
@@ -213,10 +203,10 @@ export function ColorTestStudio({
         canvas.width = Math.round(video.videoWidth * scale);
         canvas.height = Math.round(video.videoHeight * scale);
 
-        setReady(true);
+        setStatus("live");
         rafRef.current = requestAnimationFrame(loop);
 
-        // load person segmenter in the background
+        // load the person segmenter in the background
         loadPersonSegmenter().then((seg) => {
           if (seg && !cancelled) {
             segmenterRef.current = seg;
@@ -224,76 +214,58 @@ export function ColorTestStudio({
           }
         });
       } catch (err) {
-        // stop the stream so the camera indicator turns off on failure
         streamRef.current?.getTracks().forEach((t) => t.stop());
         streamRef.current = null;
         const name = (err as Error)?.name;
-        if (name === "NotAllowedError") {
-          toast.error("ไม่ได้รับอนุญาตให้ใช้กล้อง — กรุณาอนุญาตการเข้าถึงกล้องในเบราว์เซอร์");
-        } else if (name === "NotFoundError") {
-          toast.error("ไม่พบกล้องบนอุปกรณ์นี้ — ลองอัปโหลดรูปแทน");
-        } else {
-          toast.error("ไม่สามารถเข้าถึงกล้องได้ — ลองอัปโหลดรูปแทน");
-        }
-        if (!cancelled) setMode("menu");
+        setErrorMsg(
+          name === "NotAllowedError"
+            ? "ไม่ได้รับอนุญาตให้ใช้กล้อง — กรุณาอนุญาตการเข้าถึงกล้องในการตั้งค่าเบราว์เซอร์ แล้วลองอีกครั้ง"
+            : name === "NotFoundError"
+              ? "ไม่พบกล้องบนอุปกรณ์นี้"
+              : "ไม่สามารถเข้าถึงกล้องได้ กรุณาลองใหม่อีกครั้ง",
+        );
+        if (!cancelled) setStatus("error");
       }
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [mode, loop]);
+  }, [loop, retryKey]);
 
-  const stopCamera = useCallback(() => {
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    rafRef.current = null;
-    streamRef.current?.getTracks().forEach((t) => t.stop());
-    streamRef.current = null;
-  }, []);
-
+  // stop the camera when the studio unmounts
   useEffect(() => stopCamera, [stopCamera]);
-
-  // ---- upload ----------------------------------------------------------
-  function onUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const img = new Image();
-    img.onload = () => {
-      const ctx = ctx2d();
-      const canvas = canvasRef.current;
-      if (!ctx || !canvas) return;
-      const scale = Math.min(1, MAX_W / img.width);
-      canvas.width = Math.round(img.width * scale);
-      canvas.height = Math.round(img.height * scale);
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      staticSrcRef.current = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      setRefColor(null);
-      setMode("upload");
-      setReady(true);
-    };
-    img.src = URL.createObjectURL(file);
-  }
 
   // ---- tap to sample the wall colour ----------------------------------
   function onCanvasTap(e: React.PointerEvent<HTMLCanvasElement>) {
+    if (status !== "live" || cfgRef.current.frozen) return;
     const canvas = canvasRef.current;
     const ctx = ctx2d();
     if (!canvas || !ctx) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = Math.round(((e.clientX - rect.left) / rect.width) * canvas.width);
-    const y = Math.round(((e.clientY - rect.top) / rect.height) * canvas.height);
+    const cw = canvas.width;
+    const ch = canvas.height;
+    if (!cw || !ch) return;
 
-    const src =
-      mode === "upload" && staticSrcRef.current
-        ? staticSrcRef.current
-        : ctx.getImageData(0, 0, canvas.width, canvas.height);
+    // the canvas is shown with object-cover: content is scaled up by the
+    // larger ratio and centre-cropped, so undo that to hit real pixels
+    const rect = canvas.getBoundingClientRect();
+    const scale = Math.max(rect.width / cw, rect.height / ch);
+    const x = Math.round(
+      (e.clientX - rect.left - (rect.width - cw * scale) / 2) / scale,
+    );
+    const y = Math.round(
+      (e.clientY - rect.top - (rect.height - ch * scale) / 2) / scale,
+    );
+    if (x < 0 || y < 0 || x >= cw || y >= ch) return;
+
+    const src = rawRef.current ?? ctx.getImageData(0, 0, cw, ch);
     setRefColor(samplePatch(src, x, y));
   }
 
   // ---- capture / save / reset -----------------------------------------
   function capture() {
     setFrozen(true);
-    toast.success("บันทึกภาพแล้ว — กด \"บันทึกรูป\" เพื่อดาวน์โหลด");
+    toast.success('บันทึกภาพแล้ว — กด "บันทึกรูป" เพื่อดาวน์โหลด');
   }
 
   function save() {
@@ -305,191 +277,316 @@ export function ColorTestStudio({
     link.click();
   }
 
-  function restart() {
+  function close() {
     stopCamera();
-    setMode("menu");
-    setReady(false);
-    setRefColor(null);
-    setFrozen(false);
-    staticSrcRef.current = null;
+    router.push(`/product/${product.slug}`);
   }
 
-  // ---- menu screen -----------------------------------------------------
-  if (mode === "menu") {
-    return (
-      <div className="grid gap-4 sm:grid-cols-2">
-        <button
-          onClick={startCamera}
-          className="flex flex-col items-center gap-3 rounded-xl border border-border bg-card p-8 text-center transition-colors hover:border-brand"
-        >
-          <span className="grid size-14 place-items-center rounded-full bg-brand/10 text-brand">
-            <Camera className="size-7" />
-          </span>
-          <span className="font-heading font-semibold">ใช้กล้องถ่ายสด</span>
-          <span className="text-sm text-muted-foreground">
-            เปิดกล้องส่องไปที่ผนัง แล้วทดลองสีแบบเรียลไทม์
-          </span>
-        </button>
-        <label className="flex cursor-pointer flex-col items-center gap-3 rounded-xl border border-border bg-card p-8 text-center transition-colors hover:border-brand">
-          <span className="grid size-14 place-items-center rounded-full bg-brand/10 text-brand">
-            <Upload className="size-7" />
-          </span>
-          <span className="font-heading font-semibold">อัปโหลดรูปภาพ</span>
-          <span className="text-sm text-muted-foreground">
-            เลือกรูปห้องของคุณจากเครื่อง
-          </span>
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={onUpload}
-          />
-        </label>
-      </div>
-    );
+  function retry() {
+    setErrorMsg("");
+    setRefColor(null);
+    setFrozen(false);
+    setStatus("init");
+    setRetryKey((k) => k + 1);
   }
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
-      {/* canvas stage */}
-      <div>
-        <div className="relative overflow-hidden rounded-xl border border-border bg-black">
-          <video ref={videoRef} className="hidden" playsInline muted />
-          <canvas
-            ref={canvasRef}
-            onPointerDown={onCanvasTap}
-            className="w-full cursor-crosshair touch-none"
-          />
-          {ready && !refColor && (
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-center gap-2 bg-gradient-to-t from-black/70 to-transparent p-4 text-sm text-white">
-              <Hand className="size-4" />
-              แตะที่ผนังในภาพเพื่อเริ่มทดลองสี
+    <div className="fixed inset-0 z-[60] select-none overflow-hidden bg-black">
+      {/* offscreen source video — kept rendered (not display:none) so it
+          reliably decodes frames to the canvas on mobile browsers */}
+      <video
+        ref={videoRef}
+        className="pointer-events-none absolute left-0 top-0 size-px opacity-0"
+        playsInline
+        muted
+      />
+
+      <canvas
+        ref={canvasRef}
+        onPointerDown={onCanvasTap}
+        className="size-full touch-none object-cover [cursor:crosshair]"
+      />
+
+      {/* ---- initialising overlay ---- */}
+      {status === "init" && (
+        <div className="absolute inset-0 grid place-items-center bg-black text-white">
+          <div className="flex flex-col items-center gap-3">
+            <Loader2 className="size-8 animate-spin text-white/80" />
+            <p className="text-sm text-white/80">กำลังเปิดกล้อง…</p>
+          </div>
+        </div>
+      )}
+
+      {/* ---- error overlay ---- */}
+      {status === "error" && (
+        <div className="absolute inset-0 grid place-items-center bg-black px-8 text-center text-white">
+          <div className="flex max-w-sm flex-col items-center gap-4">
+            <span className="grid size-16 place-items-center rounded-full bg-white/10">
+              <CameraOff className="size-8 text-white/80" />
+            </span>
+            <p className="text-sm leading-relaxed text-white/85">{errorMsg}</p>
+            <div className="mt-1 flex flex-col gap-2">
+              <button
+                onClick={retry}
+                className="rounded-full bg-white px-6 py-2.5 text-sm font-medium text-black transition active:scale-95"
+              >
+                ลองอีกครั้ง
+              </button>
+              <button
+                onClick={close}
+                className="rounded-full px-6 py-2 text-sm text-white/70 transition hover:text-white"
+              >
+                กลับไปหน้าสินค้า
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ---- top bar ---- */}
+      {status === "live" && (
+        <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 bg-gradient-to-b from-black/70 to-transparent p-4 pb-12">
+          <button
+            onClick={close}
+            aria-label="ปิด"
+            className="grid size-10 place-items-center rounded-full bg-black/45 text-white backdrop-blur-sm transition active:scale-90"
+          >
+            <X className="size-5" />
+          </button>
+          <div className="pt-0.5 text-right text-white drop-shadow">
+            <p className="text-[11px] uppercase tracking-wide text-white/65">
+              ทดลองสี
+            </p>
+            <p className="text-sm font-medium leading-tight">{product.name}</p>
+          </div>
+        </div>
+      )}
+
+      {/* ---- tap hint ---- */}
+      {status === "live" && !frozen && !refColor && (
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center px-6">
+          <div className="flex items-center gap-2 rounded-full bg-black/55 px-4 py-2.5 text-sm text-white backdrop-blur-sm">
+            <Hand className="size-4" />
+            แตะที่ผนังในภาพเพื่อเริ่มทดลองสี
+          </div>
+        </div>
+      )}
+
+      {/* ---- bottom controls ---- */}
+      {status === "live" && (
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/92 via-black/70 to-transparent px-3 pb-5 pt-16">
+          {/* settings drawer */}
+          {settingsOpen && (
+            <div className="mx-auto mb-3 max-w-md space-y-4 rounded-2xl bg-black/75 p-4 text-white backdrop-blur-md">
+              <Slider
+                label="ความเข้มของสี"
+                value={opacity}
+                min={0.2}
+                max={1}
+                step={0.05}
+                onChange={setOpacity}
+              />
+              <Slider
+                label="ขอบเขตการตรวจจับผนัง"
+                value={tolerance}
+                min={0}
+                max={1}
+                step={0.05}
+                onChange={setTolerance}
+              />
+              <button
+                onClick={() => setUsePerson((v) => !v)}
+                disabled={!segmenterReady}
+                className={cn(
+                  "flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm transition disabled:opacity-40",
+                  usePerson
+                    ? "border-white bg-white/15"
+                    : "border-white/25",
+                )}
+              >
+                <span className="flex items-center gap-2">
+                  <UserRoundX className="size-4" />
+                  ไม่ทาสีทับคน
+                </span>
+                <span className="text-xs text-white/70">
+                  {!segmenterReady
+                    ? "กำลังโหลด…"
+                    : usePerson
+                      ? "เปิด"
+                      : "ปิด"}
+                </span>
+              </button>
+              {refColor && (
+                <button
+                  onClick={() => setRefColor(null)}
+                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-white/25 px-3 py-2 text-sm transition active:scale-95"
+                >
+                  <Eraser className="size-4" />
+                  เลือกจุดผนังใหม่
+                </button>
+              )}
             </div>
           )}
-        </div>
-        <p className="mt-2 text-center text-xs text-muted-foreground">
-          * ผลลัพธ์เป็นการประมาณการ — สีจริงอาจแตกต่างตามแสงและพื้นผิว
-        </p>
-      </div>
 
-      {/* controls */}
-      <div className="space-y-4">
-        <div className="rounded-lg border border-border bg-card p-4">
-          <p className="text-sm font-medium">
-            สี: {selectedColor.nameTh}{" "}
-            <span className="text-muted-foreground">({selectedColor.code})</span>
+          {/* selected colour label */}
+          <p className="mb-2 text-center text-sm text-white drop-shadow">
+            <span className="text-white/65">สี</span>{" "}
+            <span className="font-medium">{selectedColor.nameTh}</span>{" "}
+            <span className="text-xs text-white/55">{selectedColor.code}</span>
           </p>
-          <div className="mt-2">
-            <ColorSwatches
-              colors={colors}
-              selectedId={selectedColor.id}
-              onSelect={setSelectedColor}
-            />
-          </div>
-        </div>
 
-        <div className="space-y-3 rounded-lg border border-border bg-card p-4">
-          <div>
-            <label className="flex justify-between text-sm">
-              <span>ความเข้มของสี</span>
-              <span className="text-muted-foreground">
-                {Math.round(opacity * 100)}%
-              </span>
-            </label>
-            <input
-              type="range"
-              min={0.2}
-              max={1}
-              step={0.05}
-              value={opacity}
-              onChange={(e) => setOpacity(Number(e.target.value))}
-              className="mt-1 w-full accent-brand"
-            />
+          {/* colour strip */}
+          <div className="mx-auto flex max-w-2xl gap-2.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {colors.map((c) => (
+              <button
+                key={c.id}
+                onClick={() => setSelectedColor(c)}
+                aria-label={c.nameTh}
+                title={`${c.nameTh} (${c.code})`}
+                className={cn(
+                  "size-11 shrink-0 rounded-full shadow-md transition",
+                  c.id === selectedColor.id
+                    ? "scale-110 ring-2 ring-white"
+                    : "ring-1 ring-white/25",
+                )}
+                style={{ backgroundColor: c.hex }}
+              />
+            ))}
           </div>
-          <div>
-            <label className="flex justify-between text-sm">
-              <span>ขอบเขตการตรวจจับผนัง</span>
-              <span className="text-muted-foreground">
-                {Math.round(tolerance * 100)}%
-              </span>
-            </label>
-            <input
-              type="range"
-              min={0}
-              max={1}
-              step={0.05}
-              value={tolerance}
-              onChange={(e) => setTolerance(Number(e.target.value))}
-              className="mt-1 w-full accent-brand"
-            />
-          </div>
-          {mode === "camera" && (
-            <button
-              onClick={() => setUsePerson((v) => !v)}
-              disabled={!segmenterReady}
-              className={cn(
-                "flex w-full items-center justify-between rounded-md border px-3 py-2 text-sm transition-colors disabled:opacity-50",
-                usePerson
-                  ? "border-brand bg-brand/10 text-brand"
-                  : "border-border",
+
+          {/* action row */}
+          <div className="mx-auto mt-3 grid max-w-md grid-cols-3 items-center">
+            <div className="flex justify-start">
+              {!frozen ? (
+                <ActionButton
+                  label="ก่อน/หลัง"
+                  disabled={!refColor}
+                  onPointerDown={() => setShowOriginal(true)}
+                  onPointerUp={() => setShowOriginal(false)}
+                  onPointerLeave={() => setShowOriginal(false)}
+                >
+                  <Eye className="size-5" />
+                </ActionButton>
+              ) : (
+                <ActionButton
+                  label="ถ่ายใหม่"
+                  onClick={() => setFrozen(false)}
+                >
+                  <RotateCcw className="size-5" />
+                </ActionButton>
               )}
-            >
-              <span className="flex items-center gap-2">
-                <UserRoundX className="size-4" />
-                ไม่ทาสีทับคน
-              </span>
-              <span className="text-xs">
-                {!segmenterReady
-                  ? "กำลังโหลด..."
-                  : usePerson
-                    ? "เปิด"
-                    : "ปิด"}
-              </span>
-            </button>
-          )}
-        </div>
+            </div>
 
-        <div className="grid grid-cols-2 gap-2">
-          <Button
-            variant="outline"
-            onPointerDown={() => setShowOriginal(true)}
-            onPointerUp={() => setShowOriginal(false)}
-            onPointerLeave={() => setShowOriginal(false)}
-          >
-            <Eye className="size-4" />
-            ดูก่อน/หลัง
-          </Button>
-          {mode === "camera" && !frozen ? (
-            <Button
-              className="bg-brand hover:bg-brand-hover"
-              onClick={capture}
-            >
-              <Aperture className="size-4" />
-              ถ่ายภาพ
-            </Button>
-          ) : (
-            <Button className="bg-brand hover:bg-brand-hover" onClick={save}>
-              <Download className="size-4" />
-              บันทึกรูป
-            </Button>
-          )}
-        </div>
+            <div className="flex justify-center">
+              {!frozen ? (
+                <button
+                  onClick={capture}
+                  aria-label="ถ่ายภาพ"
+                  className="grid size-[68px] place-items-center rounded-full ring-4 ring-white/90 transition active:scale-90"
+                >
+                  <span className="grid size-14 place-items-center rounded-full bg-white">
+                    <Aperture className="size-6 text-black" />
+                  </span>
+                </button>
+              ) : (
+                <button
+                  onClick={save}
+                  aria-label="บันทึกรูป"
+                  className="flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-black transition active:scale-95"
+                >
+                  <Download className="size-5" />
+                  บันทึกรูป
+                </button>
+              )}
+            </div>
 
-        {mode === "camera" && frozen && (
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={() => setFrozen(false)}
-          >
-            <RefreshCw className="size-4" />
-            ถ่ายใหม่
-          </Button>
+            <div className="flex justify-end">
+              <ActionButton
+                label="ปรับแต่ง"
+                active={settingsOpen}
+                onClick={() => setSettingsOpen((v) => !v)}
+              >
+                <SlidersHorizontal className="size-5" />
+              </ActionButton>
+            </div>
+          </div>
+
+          <p className="mt-3 text-center text-[11px] text-white/45">
+            * ผลลัพธ์เป็นการประมาณการ — สีจริงอาจต่างตามแสงและพื้นผิว
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ---- small overlay control building blocks ---------------------------
+function ActionButton({
+  label,
+  children,
+  active,
+  disabled,
+  ...handlers
+}: {
+  label: string;
+  children: React.ReactNode;
+  active?: boolean;
+  disabled?: boolean;
+  onClick?: () => void;
+  onPointerDown?: () => void;
+  onPointerUp?: () => void;
+  onPointerLeave?: () => void;
+}) {
+  return (
+    <button
+      {...handlers}
+      disabled={disabled}
+      aria-label={label}
+      className="flex flex-col items-center gap-1 text-white transition active:scale-90 disabled:opacity-35"
+    >
+      <span
+        className={cn(
+          "grid size-12 place-items-center rounded-full backdrop-blur-sm transition-colors",
+          active ? "bg-white text-black" : "bg-black/45",
         )}
+      >
+        {children}
+      </span>
+      <span className="text-[10px] text-white/70">{label}</span>
+    </button>
+  );
+}
 
-        <Button variant="ghost" className="w-full" onClick={restart}>
-          เริ่มใหม่ / เปลี่ยนรูป
-        </Button>
-      </div>
+function Slider({
+  label,
+  value,
+  min,
+  max,
+  step,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  onChange: (v: number) => void;
+}) {
+  return (
+    <div>
+      <label className="flex justify-between text-sm">
+        <span>{label}</span>
+        <span className="text-white/60">{Math.round(value * 100)}%</span>
+      </label>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="mt-1.5 w-full accent-white"
+      />
     </div>
   );
 }
