@@ -26,7 +26,12 @@ export type GLRenderOpts = {
 
 export type GLRecolor = {
   render: (frame: TexImageSource, opts: GLRenderOpts) => void;
-  uploadMask: (mask: ImageData) => void;
+  // single-channel wall mask (0..255 coverage) from the AI segmenter
+  uploadMask: (
+    data: Uint8Array | Uint8ClampedArray,
+    width: number,
+    height: number,
+  ) => void;
   resize: (w: number, h: number) => void;
   dispose: () => void;
 };
@@ -149,9 +154,10 @@ export function createGLRecolor(canvas: HTMLCanvasElement): GLRecolor | null {
   gl.activeTexture(gl.TEXTURE1);
   gl.bindTexture(gl.TEXTURE_2D, maskTex);
   setTexParams(gl);
+  gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1); // mask rows are not 4-byte aligned
   gl.texImage2D(
-    gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
-    new Uint8Array([0, 0, 0, 255]),
+    gl.TEXTURE_2D, 0, gl.LUMINANCE, 1, 1, 0, gl.LUMINANCE, gl.UNSIGNED_BYTE,
+    new Uint8Array([0]),
   );
 
   const u = {
@@ -198,12 +204,14 @@ export function createGLRecolor(canvas: HTMLCanvasElement): GLRecolor | null {
       gl.drawArrays(gl.TRIANGLES, 0, 6);
     },
 
-    uploadMask(mask) {
+    uploadMask(data, width, height) {
       gl.activeTexture(gl.TEXTURE1);
       gl.bindTexture(gl.TEXTURE_2D, maskTex);
+      const pixels =
+        data instanceof Uint8Array ? data : new Uint8Array(data.buffer);
       gl.texImage2D(
-        gl.TEXTURE_2D, 0, gl.RGBA, mask.width, mask.height, 0,
-        gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(mask.data.buffer),
+        gl.TEXTURE_2D, 0, gl.LUMINANCE, width, height, 0,
+        gl.LUMINANCE, gl.UNSIGNED_BYTE, pixels,
       );
     },
 

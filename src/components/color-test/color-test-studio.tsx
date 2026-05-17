@@ -9,6 +9,7 @@ import {
   RotateCcw,
   Eye,
   Hand,
+  Sparkles,
   SlidersHorizontal,
   Loader2,
   CameraOff,
@@ -17,14 +18,32 @@ import {
 import { toast } from "sonner";
 import type { ProductColor } from "@/lib/data";
 import { hexToRgb, samplePatch, type RGB } from "@/lib/color-test/recolor";
-import { createGLRecolor, type GLRecolor } from "@/lib/color-test/gl-recolor";
+import {
+  createGLRecolor,
+  type GLRecolor,
+  type WallMode,
+} from "@/lib/color-test/gl-recolor";
 import { cn } from "@/lib/utils";
 
 const MAX_W = 720;
+const WORKER_W = 448; // frame width sent to the segmentation worker
+const SEND_INTERVAL = 250; // ms — min gap between frames sent to the worker
 
 type Status = "init" | "live" | "error";
+// loading = downloading/initialising the AI model
+// ready   = AI segmentation running
+// failed  = AI unavailable, fall back to tap-to-sample chroma matching
+type AiState = "loading" | "ready" | "failed";
+
+type WorkerMsg =
+  | { type: "progress"; progress: number }
+  | { type: "ready" }
+  | { type: "error"; message: string }
+  | { type: "mask"; data: Uint8ClampedArray; width: number; height: number }
+  | { type: "mask"; data: null };
 
 type Cfg = {
+  mode: WallMode;
   refColor: RGB | null;
   paint: RGB;
   opacity: number;
@@ -46,6 +65,10 @@ export function ColorTestStudio({
   const [errorMsg, setErrorMsg] = useState("");
   const [retryKey, setRetryKey] = useState(0);
 
+  const [aiState, setAiState] = useState<AiState>("loading");
+  const [aiProgress, setAiProgress] = useState(0);
+  const [maskReady, setMaskReady] = useState(false);
+
   const [selectedColor, setSelectedColor] = useState<ProductColor>(colors[0]);
   const [opacity, setOpacity] = useState(0.85);
   const [tolerance, setTolerance] = useState(0.4);
@@ -59,9 +82,14 @@ export function ColorTestStudio({
   const streamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef<number | null>(null);
   const glRef = useRef<GLRecolor | null>(null);
-  // offscreen 2D canvas, used only when the user taps to sample a colour
+  const workerRef = useRef<Worker | null>(null);
+  const workerBusyRef = useRef(false);
+  const lastSentRef = useRef(0);
+  // offscreen 2D canvases — for tap sampling and for the worker frame grab
   const sampleRef = useRef<HTMLCanvasElement | null>(null);
+  const workCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const cfgRef = useRef<Cfg>({
+    mode: "chroma",
     refColor: null,
     paint: hexToRgb(colors[0].hex),
     opacity: 0.85,
@@ -73,6 +101,7 @@ export function ColorTestStudio({
   // keep the render loop's config in sync with React state
   useEffect(() => {
     cfgRef.current = {
+      mode: aiState === "ready" ? "mask" : "chroma",
       refColor,
       paint: hexToRgb(selectedColor.hex),
       opacity,
@@ -80,7 +109,7 @@ export function ColorTestStudio({
       showOriginal,
       frozen,
     };
-  }, [refColor, selectedColor, opacity, tolerance, showOriginal, frozen]);
+  }, [aiState, refColor, selectedColor, opacity, tolerance, showOriginal, frozen]);
 
   // lock page scroll while the full-screen studio is mounted
   useEffect(() => {
@@ -89,6 +118,36 @@ export function ColorTestStudio({
     return () => {
       document.body.style.overflow = prev;
     };
+  }, []);
+
+  // send a downscaled frame to the segmentation worker (throttled, and never
+  // while a previous inference is still running)
+  const sendFrame = useCallback((video: HTMLVideoElement) => {
+    const worker = workerRef.current;
+    if (!worker || workerBusyRef.current) return;
+    const now = performance.now();
+    if (now - lastSentRef.current < SEND_INTERVAL) return;
+    const vw = video.videoWidth;
+    const vh = video.videoHeight;
+    if (!vw) return;
+
+    const w = WORKER_W;
+    const h = Math.round((w * vh) / vw);
+    const oc = workCanvasRef.current ?? document.createElement("canvas");
+    workCanvasRef.current = oc;
+    oc.width = w;
+    oc.height = h;
+    const octx = oc.getContext("2d", { willReadFrequently: true });
+    if (!octx) return;
+    octx.drawImage(video, 0, 0, w, h);
+    const img = octx.getImageData(0, 0, w, h);
+
+    workerBusyRef.current = true;
+    lastSentRef.current = now;
+    worker.postMessage(
+      { type: "frame", data: img.data.buffer, width: w, height: h },
+      [img.data.buffer],
+    );
   }, []);
 
   // ---- camera render loop — one GPU draw call per frame ----------------
@@ -103,13 +162,14 @@ export function ColorTestStudio({
 
     gl.render(video, {
       active: !cfg.showOriginal,
-      mode: "chroma",
+      mode: cfg.mode,
       refColor: cfg.refColor,
       paint: cfg.paint,
       opacity: cfg.opacity,
       tolerance: cfg.tolerance,
     });
-  }, []);
+    if (cfg.mode === "mask") sendFrame(video);
+  }, [sendFrame]);
 
   const stopCamera = useCallback(() => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -118,9 +178,12 @@ export function ColorTestStudio({
     streamRef.current = null;
     glRef.current?.dispose();
     glRef.current = null;
+    workerRef.current?.terminate();
+    workerRef.current = null;
+    workerBusyRef.current = false;
   }, []);
 
-  // ---- acquire the camera (runs on mount and on retry) ----------------
+  // ---- acquire the camera + start the AI worker -----------------------
   useEffect(() => {
     let cancelled = false;
 
@@ -171,9 +234,42 @@ export function ColorTestStudio({
           return;
         }
         glRef.current = gl;
-
         setStatus("live");
         rafRef.current = requestAnimationFrame(loop);
+
+        // spin up the AI wall-segmentation worker
+        const worker = new Worker(
+          new URL(
+            "../../lib/color-test/segmenter.worker.ts",
+            import.meta.url,
+          ),
+          { type: "module" },
+        );
+        worker.onmessage = (ev: MessageEvent) => {
+          const m = ev.data as WorkerMsg;
+          if (m.type === "progress") {
+            setAiProgress(m.progress);
+          } else if (m.type === "ready") {
+            setAiState("ready");
+          } else if (m.type === "error") {
+            setAiState("failed");
+            toast.error(
+              "โหลด AI ตรวจจับผนังไม่สำเร็จ — ใช้โหมดแตะเลือกผนังแทน",
+            );
+          } else if (m.type === "mask") {
+            workerBusyRef.current = false;
+            if (m.data) {
+              glRef.current?.uploadMask(m.data, m.width, m.height);
+              setMaskReady(true);
+            }
+          }
+        };
+        worker.onerror = () => {
+          setAiState("failed");
+          toast.error("โหลด AI ตรวจจับผนังไม่สำเร็จ — ใช้โหมดแตะเลือกผนังแทน");
+        };
+        workerRef.current = worker;
+        worker.postMessage({ type: "init" });
       } catch (err) {
         streamRef.current?.getTracks().forEach((t) => t.stop());
         streamRef.current = null;
@@ -191,15 +287,15 @@ export function ColorTestStudio({
 
     return () => {
       cancelled = true;
+      stopCamera();
     };
-  }, [loop, retryKey]);
+  }, [loop, stopCamera, retryKey]);
 
-  // stop the camera when the studio unmounts
-  useEffect(() => stopCamera, [stopCamera]);
-
-  // ---- tap to sample the wall colour ----------------------------------
+  // ---- tap to sample the wall colour (chroma fallback only) -----------
   function onCanvasTap(e: React.PointerEvent<HTMLCanvasElement>) {
-    if (status !== "live" || cfgRef.current.frozen) return;
+    if (status !== "live" || aiState !== "failed" || cfgRef.current.frozen) {
+      return;
+    }
     const canvas = canvasRef.current;
     const video = videoRef.current;
     if (!canvas || !video) return;
@@ -219,8 +315,7 @@ export function ColorTestStudio({
     );
     if (x < 0 || y < 0 || x >= cw || y >= ch) return;
 
-    // draw the current frame to an offscreen 2D canvas just for sampling —
-    // the live preview itself never leaves the GPU
+    // draw the current frame to an offscreen 2D canvas just for sampling
     const oc = sampleRef.current ?? document.createElement("canvas");
     sampleRef.current = oc;
     oc.width = cw;
@@ -255,9 +350,15 @@ export function ColorTestStudio({
     setErrorMsg("");
     setRefColor(null);
     setFrozen(false);
+    setAiState("loading");
+    setAiProgress(0);
+    setMaskReady(false);
     setStatus("init");
     setRetryKey((k) => k + 1);
   }
+
+  // is a wall ready to be painted? (AI mask received, or a colour tapped)
+  const wallSelected = aiState === "ready" ? maskReady : refColor != null;
 
   return (
     <div className="fixed inset-0 z-[60] select-none overflow-hidden bg-black">
@@ -273,7 +374,10 @@ export function ColorTestStudio({
       <canvas
         ref={canvasRef}
         onPointerDown={onCanvasTap}
-        className="size-full touch-none object-cover [cursor:crosshair]"
+        className={cn(
+          "size-full touch-none object-cover",
+          aiState === "failed" && "[cursor:crosshair]",
+        )}
       />
 
       {/* ---- initialising overlay ---- */}
@@ -331,13 +435,27 @@ export function ColorTestStudio({
         </div>
       )}
 
-      {/* ---- tap hint ---- */}
-      {status === "live" && !frozen && !refColor && (
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center px-6">
-          <div className="flex items-center gap-2 rounded-full bg-black/55 px-4 py-2.5 text-sm text-white backdrop-blur-sm">
-            <Hand className="size-4" />
-            แตะที่ผนังในภาพเพื่อเริ่มทดลองสี
-          </div>
+      {/* ---- AI status / hint pill ---- */}
+      {status === "live" && !frozen && (
+        <div className="pointer-events-none absolute inset-x-0 top-20 flex justify-center px-6">
+          {aiState === "loading" && (
+            <div className="flex items-center gap-2 rounded-full bg-black/60 px-4 py-2 text-sm text-white backdrop-blur-sm">
+              <Loader2 className="size-4 animate-spin" />
+              กำลังโหลด AI ตรวจจับผนัง… {Math.round(aiProgress * 100)}%
+            </div>
+          )}
+          {aiState === "ready" && !maskReady && (
+            <div className="flex items-center gap-2 rounded-full bg-black/60 px-4 py-2 text-sm text-white backdrop-blur-sm">
+              <Sparkles className="size-4" />
+              เล็งกล้องไปที่ผนัง — AI กำลังตรวจจับ
+            </div>
+          )}
+          {aiState === "failed" && !refColor && (
+            <div className="flex items-center gap-2 rounded-full bg-black/55 px-4 py-2 text-sm text-white backdrop-blur-sm">
+              <Hand className="size-4" />
+              แตะที่ผนังในภาพเพื่อเริ่มทดลองสี
+            </div>
+          )}
         </div>
       )}
 
@@ -355,15 +473,17 @@ export function ColorTestStudio({
                 step={0.05}
                 onChange={setOpacity}
               />
-              <Slider
-                label="ขอบเขตการตรวจจับผนัง"
-                value={tolerance}
-                min={0}
-                max={1}
-                step={0.05}
-                onChange={setTolerance}
-              />
-              {refColor && (
+              {aiState === "failed" && (
+                <Slider
+                  label="ขอบเขตการตรวจจับผนัง"
+                  value={tolerance}
+                  min={0}
+                  max={1}
+                  step={0.05}
+                  onChange={setTolerance}
+                />
+              )}
+              {aiState === "failed" && refColor && (
                 <button
                   onClick={() => setRefColor(null)}
                   className="flex w-full items-center justify-center gap-2 rounded-lg border border-white/25 px-3 py-2 text-sm transition active:scale-95"
@@ -371,6 +491,12 @@ export function ColorTestStudio({
                   <Eraser className="size-4" />
                   เลือกจุดผนังใหม่
                 </button>
+              )}
+              {aiState === "ready" && (
+                <p className="flex items-center gap-2 text-xs text-white/60">
+                  <Sparkles className="size-3.5" />
+                  AI ตรวจจับผนังให้อัตโนมัติ
+                </p>
               )}
             </div>
           )}
@@ -407,7 +533,7 @@ export function ColorTestStudio({
               {!frozen ? (
                 <ActionButton
                   label="ก่อน/หลัง"
-                  disabled={!refColor}
+                  disabled={!wallSelected}
                   onPointerDown={() => setShowOriginal(true)}
                   onPointerUp={() => setShowOriginal(false)}
                   onPointerLeave={() => setShowOriginal(false)}
