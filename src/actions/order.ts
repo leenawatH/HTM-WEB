@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidateTag } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { discountedPrice } from "@/lib/format";
@@ -218,6 +219,10 @@ export async function placeOrder(
       });
     }
   });
+
+  // the order changed stock + salesCount — mark the cached catalog data
+  // stale so listings and product pages refresh (stale-while-revalidate)
+  revalidateTag("catalog", "max");
 
   return { ok: true, orderNumber };
 }

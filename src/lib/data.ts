@@ -1,4 +1,5 @@
 import "server-only";
+import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 
 // Serialised, client-safe product shape (Prisma Decimal -> number).
@@ -21,6 +22,17 @@ export type ProductCardData = {
 };
 
 const PLACEHOLDER_IMG = "/products/placeholder.svg";
+
+// Catalog data (products, categories, brands) changes rarely, so its DB
+// queries are wrapped in `unstable_cache`. This keeps page navigation fast:
+// after the first visit the result is served from the cache instead of
+// hitting Supabase again. `revalidate` refreshes it in the background; the
+// "catalog" tag allows on-demand invalidation from an admin mutation later.
+const CATALOG_TTL = 300; // seconds
+const cacheOpts = (key: string, revalidate = CATALOG_TTL) => ({
+  revalidate,
+  tags: ["catalog", key],
+});
 
 type ProductWithRelations = {
   id: string;
@@ -80,7 +92,9 @@ const cardInclude = {
 } as const;
 
 // "Recommended" — popular + discounted products for the home page.
-export async function getFeaturedProducts(limit = 8): Promise<ProductCardData[]> {
+async function getFeaturedProductsImpl(
+  limit = 8,
+): Promise<ProductCardData[]> {
   const products = await prisma.product.findMany({
     where: {
       isActive: true,
@@ -92,8 +106,13 @@ export async function getFeaturedProducts(limit = 8): Promise<ProductCardData[]>
   });
   return products.map(toCardData);
 }
+export const getFeaturedProducts = unstable_cache(
+  getFeaturedProductsImpl,
+  ["featured-products"],
+  cacheOpts("featured-products"),
+);
 
-export async function getCategoriesWithCount() {
+async function getCategoriesWithCountImpl() {
   const categories = await prisma.category.findMany({
     orderBy: { sortOrder: "asc" },
     include: { _count: { select: { products: true } } },
@@ -107,8 +126,13 @@ export async function getCategoriesWithCount() {
     productCount: c._count.products,
   }));
 }
+export const getCategoriesWithCount = unstable_cache(
+  getCategoriesWithCountImpl,
+  ["categories-with-count"],
+  cacheOpts("categories", 600),
+);
 
-export async function getBrands() {
+async function getBrandsImpl() {
   const brands = await prisma.brand.findMany({ orderBy: { sortOrder: "asc" } });
   return brands.map((b) => ({
     id: b.id,
@@ -117,6 +141,11 @@ export async function getBrands() {
     logoUrl: b.logoUrl,
   }));
 }
+export const getBrands = unstable_cache(
+  getBrandsImpl,
+  ["brands"],
+  cacheOpts("brands", 600),
+);
 
 // ============================================================
 // Category listing
@@ -149,7 +178,7 @@ export type CategoryListingResult = {
   priceBounds: { min: number; max: number };
 };
 
-export async function getCategoryBySlug(slug: string) {
+async function getCategoryBySlugImpl(slug: string) {
   if (slug === "all") {
     return { slug: "all", nameTh: "สินค้าทั้งหมด", nameEn: "All Products", descriptionTh: null, imageUrl: null };
   }
@@ -163,8 +192,13 @@ export async function getCategoryBySlug(slug: string) {
     imageUrl: c.imageUrl,
   };
 }
+export const getCategoryBySlug = unstable_cache(
+  getCategoryBySlugImpl,
+  ["category-by-slug"],
+  cacheOpts("categories", 600),
+);
 
-export async function getCategoryListing(opts: {
+async function getCategoryListingImpl(opts: {
   categorySlug: string;
   brandSlugs?: string[];
   minPrice?: number;
@@ -227,6 +261,13 @@ export async function getCategoryListing(opts: {
     },
   };
 }
+// The filter/sort/page options become part of the cache key, so every
+// distinct listing view is cached separately.
+export const getCategoryListing = unstable_cache(
+  getCategoryListingImpl,
+  ["category-listing"],
+  cacheOpts("category-listing"),
+);
 
 // ============================================================
 // Product detail
@@ -273,7 +314,7 @@ export type ProductDetail = {
   colors: ProductColor[];
 };
 
-export async function getProductBySlug(
+async function getProductBySlugImpl(
   slug: string,
 ): Promise<ProductDetail | null> {
   const p = await prisma.product.findUnique({
@@ -346,8 +387,13 @@ export async function getProductBySlug(
     ),
   };
 }
+export const getProductBySlug = unstable_cache(
+  getProductBySlugImpl,
+  ["product-by-slug"],
+  cacheOpts("products"),
+);
 
-export async function getRelatedProducts(
+async function getRelatedProductsImpl(
   categorySlug: string,
   excludeId: string,
   limit = 4,
@@ -364,14 +410,24 @@ export async function getRelatedProducts(
   });
   return rows.map(toCardData);
 }
+export const getRelatedProducts = unstable_cache(
+  getRelatedProductsImpl,
+  ["related-products"],
+  cacheOpts("products"),
+);
 
-export async function getAllProductSlugs() {
+async function getAllProductSlugsImpl() {
   const rows = await prisma.product.findMany({
     where: { isActive: true },
     select: { slug: true },
   });
   return rows.map((r) => r.slug);
 }
+export const getAllProductSlugs = unstable_cache(
+  getAllProductSlugsImpl,
+  ["all-product-slugs"],
+  cacheOpts("products", 600),
+);
 
 // ============================================================
 // Orders

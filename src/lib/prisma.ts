@@ -24,11 +24,14 @@ function resolveConnectionString(): string | undefined {
 }
 
 // Prisma 7 requires a driver adapter. PrismaPg connects directly to Postgres.
-// `max: 1` keeps each serverless instance to a single connection — node-postgres
-// defaults to 10, which multiplies across instances and exhausts the pooler.
+// `max: 3` lets a request's parallel queries (e.g. the category listing fires
+// three at once) run concurrently instead of queueing on a single connection.
+// node-postgres defaults to 10; the transaction pooler returns each connection
+// after every statement, so a small per-instance cap keeps Supabase's
+// connection limit clear even across many serverless instances.
 const adapter = new PrismaPg({
   connectionString: resolveConnectionString(),
-  max: 1,
+  max: 3,
   idleTimeoutMillis: 10_000,
 });
 
