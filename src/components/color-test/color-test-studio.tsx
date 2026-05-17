@@ -8,7 +8,6 @@ import {
   Download,
   RotateCcw,
   Eye,
-  UserRoundX,
   Hand,
   SlidersHorizontal,
   Loader2,
@@ -16,18 +15,9 @@ import {
   Eraser,
 } from "lucide-react";
 import { toast } from "sonner";
-import type { ImageSegmenter } from "@mediapipe/tasks-vision";
 import type { ProductColor } from "@/lib/data";
-import {
-  hexToRgb,
-  recolor,
-  samplePatch,
-  type RGB,
-} from "@/lib/color-test/recolor";
-import {
-  loadPersonSegmenter,
-  segmentPeople,
-} from "@/lib/color-test/person-segmenter";
+import { hexToRgb, samplePatch, type RGB } from "@/lib/color-test/recolor";
+import { createGLRecolor, type GLRecolor } from "@/lib/color-test/gl-recolor";
 import { cn } from "@/lib/utils";
 
 const MAX_W = 720;
@@ -39,7 +29,6 @@ type Cfg = {
   paint: RGB;
   opacity: number;
   tolerance: number;
-  usePerson: boolean;
   showOriginal: boolean;
   frozen: boolean;
 };
@@ -61,25 +50,22 @@ export function ColorTestStudio({
   const [opacity, setOpacity] = useState(0.85);
   const [tolerance, setTolerance] = useState(0.4);
   const [refColor, setRefColor] = useState<RGB | null>(null);
-  const [usePerson, setUsePerson] = useState(false);
   const [showOriginal, setShowOriginal] = useState(false);
   const [frozen, setFrozen] = useState(false);
-  const [segmenterReady, setSegmenterReady] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef<number | null>(null);
-  const dstRef = useRef<ImageData | null>(null);
-  const rawRef = useRef<ImageData | null>(null);
-  const segmenterRef = useRef<ImageSegmenter | null>(null);
+  const glRef = useRef<GLRecolor | null>(null);
+  // offscreen 2D canvas, used only when the user taps to sample a colour
+  const sampleRef = useRef<HTMLCanvasElement | null>(null);
   const cfgRef = useRef<Cfg>({
     refColor: null,
     paint: hexToRgb(colors[0].hex),
     opacity: 0.85,
     tolerance: 0.4,
-    usePerson: false,
     showOriginal: false,
     frozen: false,
   });
@@ -91,11 +77,10 @@ export function ColorTestStudio({
       paint: hexToRgb(selectedColor.hex),
       opacity,
       tolerance,
-      usePerson,
       showOriginal,
       frozen,
     };
-  }, [refColor, selectedColor, opacity, tolerance, usePerson, showOriginal, frozen]);
+  }, [refColor, selectedColor, opacity, tolerance, showOriginal, frozen]);
 
   // lock page scroll while the full-screen studio is mounted
   useEffect(() => {
@@ -106,57 +91,33 @@ export function ColorTestStudio({
     };
   }, []);
 
-  const ctx2d = useCallback(() => {
-    return canvasRef.current?.getContext("2d", {
-      willReadFrequently: true,
-    }) as CanvasRenderingContext2D | null;
-  }, []);
-
-  // ---- camera render loop ---------------------------------------------
+  // ---- camera render loop — one GPU draw call per frame ----------------
   const loop = useCallback(() => {
     rafRef.current = requestAnimationFrame(loop);
     const video = videoRef.current;
-    const canvas = canvasRef.current;
-    const ctx = ctx2d();
-    if (!video || !canvas || !ctx || video.readyState < 2) return;
+    const gl = glRef.current;
+    if (!video || !gl || video.readyState < 2) return;
 
     const cfg = cfgRef.current;
-    if (cfg.frozen) return;
+    if (cfg.frozen) return; // keep the captured frame on screen
 
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    if (cfg.showOriginal || !cfg.refColor) return; // raw frame shown
-
-    const src = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    rawRef.current = src;
-
-    let personMask: Uint8Array | null = null;
-    if (cfg.usePerson && segmenterRef.current) {
-      const m = segmentPeople(segmenterRef.current, canvas, performance.now());
-      if (m && m.length === canvas.width * canvas.height) personMask = m;
-    }
-
-    if (
-      !dstRef.current ||
-      dstRef.current.width !== canvas.width ||
-      dstRef.current.height !== canvas.height
-    ) {
-      dstRef.current = ctx.createImageData(canvas.width, canvas.height);
-    }
-    recolor(src, dstRef.current, {
+    gl.render(video, {
+      active: !cfg.showOriginal,
+      mode: "chroma",
       refColor: cfg.refColor,
       paint: cfg.paint,
       opacity: cfg.opacity,
       tolerance: cfg.tolerance,
-      personMask,
     });
-    ctx.putImageData(dstRef.current, 0, 0);
-  }, [ctx2d]);
+  }, []);
 
   const stopCamera = useCallback(() => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     rafRef.current = null;
     streamRef.current?.getTracks().forEach((t) => t.stop());
     streamRef.current = null;
+    glRef.current?.dispose();
+    glRef.current = null;
   }, []);
 
   // ---- acquire the camera (runs on mount and on retry) ----------------
@@ -203,16 +164,16 @@ export function ColorTestStudio({
         canvas.width = Math.round(video.videoWidth * scale);
         canvas.height = Math.round(video.videoHeight * scale);
 
+        const gl = createGLRecolor(canvas);
+        if (!gl) {
+          setErrorMsg("เบราว์เซอร์นี้ไม่รองรับการแสดงผลด้วย WebGL");
+          setStatus("error");
+          return;
+        }
+        glRef.current = gl;
+
         setStatus("live");
         rafRef.current = requestAnimationFrame(loop);
-
-        // load the person segmenter in the background
-        loadPersonSegmenter().then((seg) => {
-          if (seg && !cancelled) {
-            segmenterRef.current = seg;
-            setSegmenterReady(true);
-          }
-        });
       } catch (err) {
         streamRef.current?.getTracks().forEach((t) => t.stop());
         streamRef.current = null;
@@ -240,8 +201,8 @@ export function ColorTestStudio({
   function onCanvasTap(e: React.PointerEvent<HTMLCanvasElement>) {
     if (status !== "live" || cfgRef.current.frozen) return;
     const canvas = canvasRef.current;
-    const ctx = ctx2d();
-    if (!canvas || !ctx) return;
+    const video = videoRef.current;
+    if (!canvas || !video) return;
     const cw = canvas.width;
     const ch = canvas.height;
     if (!cw || !ch) return;
@@ -258,8 +219,16 @@ export function ColorTestStudio({
     );
     if (x < 0 || y < 0 || x >= cw || y >= ch) return;
 
-    const src = rawRef.current ?? ctx.getImageData(0, 0, cw, ch);
-    setRefColor(samplePatch(src, x, y));
+    // draw the current frame to an offscreen 2D canvas just for sampling —
+    // the live preview itself never leaves the GPU
+    const oc = sampleRef.current ?? document.createElement("canvas");
+    sampleRef.current = oc;
+    oc.width = cw;
+    oc.height = ch;
+    const octx = oc.getContext("2d", { willReadFrequently: true });
+    if (!octx) return;
+    octx.drawImage(video, 0, 0, cw, ch);
+    setRefColor(samplePatch(octx.getImageData(0, 0, cw, ch), x, y));
   }
 
   // ---- capture / save / reset -----------------------------------------
@@ -394,28 +363,6 @@ export function ColorTestStudio({
                 step={0.05}
                 onChange={setTolerance}
               />
-              <button
-                onClick={() => setUsePerson((v) => !v)}
-                disabled={!segmenterReady}
-                className={cn(
-                  "flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm transition disabled:opacity-40",
-                  usePerson
-                    ? "border-white bg-white/15"
-                    : "border-white/25",
-                )}
-              >
-                <span className="flex items-center gap-2">
-                  <UserRoundX className="size-4" />
-                  ไม่ทาสีทับคน
-                </span>
-                <span className="text-xs text-white/70">
-                  {!segmenterReady
-                    ? "กำลังโหลด…"
-                    : usePerson
-                      ? "เปิด"
-                      : "ปิด"}
-                </span>
-              </button>
               {refColor && (
                 <button
                   onClick={() => setRefColor(null)}
